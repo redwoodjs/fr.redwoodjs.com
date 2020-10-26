@@ -1,0 +1,160 @@
+[dev]
+  command = "cameronjs dev"
+  publish = "publish"
+  port = 8080
+
+[build]
+  command = "yarn build"
+  publish = "publish"
+  functions = "functions"
+
+# For more settings see https://www.netlify.com/docs/netlify-toml-reference/#post-processing
+[build.processing]
+  skip_processing = false
+[build.processing.css]
+  minify = true
+[build.processing.js]
+  minify = true
+[build.processing.html]
+  pretty_urls = true
+[build.processing.images]
+  compress = true
+
+[context.production]
+  environment = { NODE_ENV = "production"}
+
+[context.branch-deploy]
+  environment = { NODE_ENV = "production" }
+
+[[redirects]]
+  from = "/docs"
+  to = "/docs/introduction"
+  status = 301
+  force = true
+
+[[headers]]
+  for = "/docs/introduction"
+  [headers.values]
+    Turbolinks-Location = "/docs/introduction"
+
+[[redirects]]
+  from = "/tutorial"
+  to = "/tutorial/welcome-to-redwood"
+  status = 301
+  force = true
+
+[[headers]]
+  for = "/tutorial/welcome-to-redwood"
+  [headers.values]
+    Turbolinks-Location = "/tutorial/welcome-to-redwood"
+
+[[redirects]]
+  from = "/cookbook"
+  to = "/cookbook/disable-api-database"
+  status = 301
+  force = true
+
+[[headers]]
+  for = "/cookbook/disable-api-database"
+  [headers.values]
+    Turbolinks-Location = "/cookbook/disable-api-database"
+
+[[redirects]]
+  from = "/home"
+  to = "/"
+  status = 301
+  force = true
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Turbolinks-Location = "/"
+
+[[redirects]]
+  from = "/guides/introduction"
+  to = "/docs/introduction"
+
+[[redirects]]
+from = "/guides/authentication"
+to = "/docs/authentication"
+
+[[redirects]]
+from = "/home"
+to = "/"
+
+[[redirects]]
+  from = "/guides/assets-and-files"
+  to = "/docs/assets-and-files"
+
+[[redirects]]
+  from = "/guides/builds"
+  to = "/docs/builds"
+
+[[redirects]]
+  from = "/guides/command-line-interface"
+  to = "/docs/cli-commands"    
+
+[[redirects]]
+from = "/reference/command-line-interface"
+to = "/docs/cli-commands"  
+
+[[redirects]]
+from = "/guides/connection-pooling"
+to = "/docs/connection-pooling"  
+
+[[redirects]]
+from = "/guides/contributing"
+to = "/docs/contributing"  
+
+[[redirects]]
+from = "/guides/redwood-s-http-server-for-serverless-functions"
+to = "/docs/serverless-functions"  
+
+[[redirects]]
+from = "/guides/environment-variables"
+to = "/docs/environment-variables"    
+
+[[redirects]]
+from = "/guides/local-postgres-setup"
+to = "/docs/local-postgres-setup" 
+
+[[redirects]]
+from = "/guides/redwood-router"
+to = "/docs/redwood-router"  
+
+[[redirects]]
+from = "/guides/webpack-config"
+to = "/docs/webpack-configuration"  
+
+[[redirects]]
+from = "/reference/app-configuration-redwood-toml"
+to = "/docs/app-configuration-redwood-toml"  
+
+[[redirects]]
+from = "/reference/redwood-form"
+to = "/docs/form"
+
+[[redirects]]
+from = "/docs/type-script"
+to = "/docs/typescript"
+
+[[redirects]]
+from ="/good-first-issue"
+to ="https://github.com/redwoodjs/redwood/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22"
+
+[[redirects]]
+from = "/docs/mocking-graph-ql-requests"
+to = "/docs/mocking-graphql-requests"
+
+[[redirects]]
+from = "/cookbook/mocking-graph-ql-in-storybook"
+to = "/cookbook/mocking-graphql-in-storybook"
+
+[[redirects]]
+from = "/cookbook/go-true-auth"
+to = "/cookbook/gotrue-auth"
+
+[[redirects]]
+  from = "/newsletter"
+  to = "https://redwoodjs.us19.list-manage.com/subscribe/post?u=0c27354a06a7fdf4d83ce07fc&id=09f634eea4"
+  force = true
