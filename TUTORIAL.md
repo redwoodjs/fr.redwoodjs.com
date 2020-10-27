@@ -1,10 +1,10 @@
-# Welcome to Redwood
+# Bienvenue chez Redwood
 
-Welcome to Redwood! If you haven't yet, check out the [Redwood README](https://github.com/redwoodjs/redwood/blob/main/README.md) to get a little background on why we created Redwood and the problems it's meant to solve. Redwood brings several existing technologies together for the first time into what we think is the future of database-backed single page applications.
+Bienvenue chez Redwood! Si vous ne l’avez pas encore fait, prenez le temps de lire [Redwood README](https://github.com/redwoodjs/redwood/blob/main/README.md) pour en savoir un peu plus sur les origines de Redwood et les problèmes qu'il entend résoudre. Redwood assemble plusieurs technologies de façon inédite et qui correspond à ce que nous pensons être le futur des applications web avec base de données.  
 
-In this tutorial we're going to build a blog engine. In reality a blog is probably not the ideal candidate for a Redwood app: blog articles can be stored in a CMS and statically generated to HTML files and served as flat files from a CDN. But as most developers are familiar with a blog and it uses all of the features we want to demonstrate, we decided to build one anyway.
+Dans ce didacticiel, nous allons construire un moteur de blog. En réalité, un blog n’est probablement pas le candidat idéal pour une application construite avec Redwood: les articles peuvent être enregistrés dans un CMS et générées statiquement sous la forme de fichiers HTML servis par un CDN. Ceci étant, la plupart des développeurs comprennent intuitivement ce que recouvre ce type d’application, et un blog présente toutes les caractéristiques que nous souhaitons mettre en lumière. Nous avons donc décidé d'en construire un malgré tout.
 
-Want to watch this tutorial instead? Start here:
+Peut-être souhaitez-vous voir ce didacticiel en vidéo? C’est ici :
 
 <div class="relative pb-9/16">
   <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/tiF9SdM1i7M?rel=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; modestbranding; showinfo=0" allowfullscreen></iframe>
@@ -22,77 +22,81 @@ Want to watch this tutorial instead? Start here:
   <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/UpD3HyuZkvY?rel=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; modestbranding; showinfo=0" allowfullscreen></iframe>
 </div>
 
-## Prerequisites
+## Prérequis
 
-This tutorial assumes you are already familiar with a few core concepts:
+Ce didacticiel suppose que vous soyez déjà familier avec quelques concepts fondamentaux :
 
 - [React](https://reactjs.org/)
 - [GraphQL](https://graphql.org/)
 - [The Jamstack](https://jamstack.org/)
 
-You could work through this tutorial without knowing anything about these technologies but you may find yourself getting lost in terminology that we don't stop and take the time to explain. It also helps knowing where the line is between what is built into React and what additional features Redwood brings to the table.
+Vous pouvez tout à fait compléter ce didacticiel sans savoir quoique ce soit sur ces technologies, mais il est possible que vous soyez un peu perdu par certains termes que nous utiliserons sans forcément les expliquer au préalable. D'une façon générale, il est toujours utile de savoir où se situe les frontières et pouvoir distinguer par exemple ce qui provient de React de ce qui est ajouté par Redwood. 
 
-### Node.js and Yarn Versions
+### Node.js et Yarn
 
-During installation, RedwoodJS checks if your system meets version requirements for Node and Yarn:
+Pendant l’installation, RedwoodJS commence par verifier si votre système possède les versions requises de Node et Yarn :
 
 - node: ">=12"
 - yarn: ">=1.15"
 
 👉 **Heads Up:** If your system versions do not meet both requirements, _the installation bootstrap will result in an ERROR._ To check, please run the following from your terminal command line:
+👉 **Important:** Si votre système ne repond pas à ces prérequis, _l’installation se soldera par une ERREUR._ Vérifiez en exécutant les commandes suivantes dans un terminal:
 
 ```
 node --version
 yarn --version
 ```
+Procédez aux mises à jour le cas échéant, puis relancez l’installation de RedwoodJS lorsque vous êtes prêt !
 
-Please do upgrade accordingly. Then proceed to the RedwoodJS installation when you're ready!
 
-> **Installing Node and Yarn**
+> **Installer Node et Yarn**
 >
-> There are many ways to install and manage both Node.js and Yarn. If you're installing for the first time, we recommend the following:
+> Il y a différentes façons d’installer Node.js et Yarn. Si vous procédez à leur installation pour la première fois, nous vous recommandons de suivre les points suivants :
 >
 > **Yarn**
 >
-> - We recommend following the [instructions via Yarnpkg.com](https://classic.yarnpkg.com/en/docs/install/).
+> - Nous recommandons de suivre les instructions fournies sur [Yarnpkg.com](https://classic.yarnpkg.com/en/docs/install/).
 >
 > **Node.js**
 >
-> - For **Linux** and **Mac** users, `nvm` is a great tool for managing multiple versions of Node on one system. It takes a bit more effort to set up and learn, however, in which case getting the latest [installation from Nodejs.org](https://nodejs.org/en/) works just fine.
->   - For **Mac** users, if you already have Homebrew installed, you can use it to [install `nvm`](https://formulae.brew.sh/formula/nvm) as well. Otherwise, follow the [installation instructions from `nvm`](https://github.com/nvm-sh/nvm#installing-and-updating).
->   - For **Linux** users, you can follow the [installation instructions from `nvm`](https://github.com/nvm-sh/nvm#installing-and-updating).
-> - We recommend **Windows** users visit [Nodejs.org](https://nodejs.org/en/) for installation.
+> - Pour les utilisateurs de **Linux** et **Mac**, `nvm` est un excellent outil pour gérer plusieurs versions de Node sur un même système. Il demande un petit effort à mettre en place. Dans les deux cas, utiliser la version la plus récente de [Nodejs.org](https://nodejs.org/en/) fonctionne très bien.
+>   - Pour les utilisateurs de **Mac**, si vous avez dejà installé Homebrew, vous pouvez l’utiliser pour [installer `nvm`](https://formulae.brew.sh/formula/nvm). Dans le cas contraire, suivez les [instructions d'installation pour `nvm`](https://github.com/nvm-sh/nvm#installing-and-updating).
+>   - Pour les utilisateurs de **Linux**, vous pouvez suivre les [instructions d'installation pour `nvm`](https://github.com/nvm-sh/nvm#installing-and-updating).
+> - Nous recommandons aux utilisateurs de **Windows** de visiter [Nodejs.org](https://nodejs.org/en/) pour savoir comment procéder.
 >
 > If you're confused about which of the two current Node versions to use, we recommend using the most recent "even" LTS, which is currently v12.
+> Si vous êtes un peu perdu au moment de choisir quelle version de Node utiliser, nous vous recommandons la plus récente LTS avec un numéro de version pair, actuellement il s'agit de la v12.
 
-## Installation & Starting Development
+## Installation & Démarrage du développement
 
-We'll use yarn ([yarn](https://yarnpkg.com/en/docs/install) is a requirement) to create the basic structure of our app:
+Nous utiliserons yarn ([yarn](https://yarnpkg.com/en/docs/install) est un pré-requis) pour créer la structure de base pour notre application :
 
     yarn create redwood-app ./redwoodblog
 
-You'll have a new directory `redwoodblog` containing several directories and files. Change to that directory and let's create the database, and then start the development server:
+Vous obtenez ainsi un nouveau répertoire `redwoodblog` contenant plusieurs sous-répertoires et fichiers. Déplacez-vous dans ce répertoire, puis lancez le serveur de développement :
 
     cd redwoodblog
     yarn redwood dev
 
-A browser should automatically open to http://localhost:8910 and you will see the Redwood welcome page:
+Votre navigateur web devrait se lancer automatiquement et ouvrir `http://localhost:8910` laissant apparaître la page d’accueil de Redwood. 
 
 ![Redwood Welcome Page](https://user-images.githubusercontent.com/300/73012647-97a43d00-3dcb-11ea-8554-42df29c36e4a.png)
 
 > Remembering the port number is as easy as counting: 8-9-10!
+> Mémoriser le numéro de port est très simple, comptez simplement: 8-9-10!
 
-### First Commit
+### Premier Commit
 
 Now that we have the skeleton of our Redwood app in place, it's a good idea to save the current state of the app as your first commit...just in case.
+Maintenant que nous avons le squelette de notre application Redwood, c'est le bon moment pour enregistrer notre travail avec un premier commit... au cas où.
 
     git init
     git add .
-    git commit -m 'First commit'
+    git commit -m 'Premier commit'
 
-## Redwood File Structure
+## Structure d'une application Redwood
 
-Let's take a look at the files and directories that were created for us (config files have been excluded for now):
+Examinons maintenant les fichiers et répertoires qui ont été créés pour nous (laissons de côté les fichiers de configuration sur lesquels nous reviendrons plus tard)
 
 ```terminal
 ├── api
@@ -124,60 +128,59 @@ Let's take a look at the files and directories that were created for us (config 
             └── NotFoundPage
                 └── NotFoundPage.js
 ```
-
-At the top level we have two directories, `api` and `web`. Redwood separates the backend (`api`) and frontend (`web`) concerns into their own paths in the codebase. ([Yarn refers to these as "workspaces"](https://yarnpkg.com/lang/en/docs/workspaces/). In Redwood, we refer to them as "sides.") When you add packages going forward you'll need to specify which workspace they should go in. For example (don't run these commands, we're just looking at the syntax):
+Au premier niveau nous avons deux répertoires, `api` et `web`. Redwood sépare le backend (`api`) et le frontend (`web`) au sein du projet. ([Yarn qualifie cette séparation de "workspaces"](https://yarnpkg.com/lang/en/docs/workspaces/). Avec Redwood, on fait plutôt référence aux "côtés" web et api de l'application). Ainsi, lorsque plus tard vous serez amené à ajouter des packages, il vous faudra préciser dans quel côté ils doivent aller. Par exemple, (inutile d'exécuter ces commandes):
 
     yarn workspace web add marked
     yarn workspace api add better-fs
 
-### The /api Directory
+### Le Répertoire /api
 
-Within `api` there are two directories:
+A l'intérieur du répertoire `api` se trouve deux sous-répertoires :
 
-- `prisma` contains the plumbing for the database:
+- `prisma` contient du code d'infratructure relatif à la base de donnée
 
-  - `schema.prisma` contains the database schema (tables and columns)
-  - `seeds.js` is used to populate your database with any data that needs to exist for your app to run at all (maybe an admin user or site configuration).
+  - `schema.prisma` contient le schéma de la base de données (ses tables et ses colonnes)
+  - `seeds.js` est utilisé pour initialiser la base de données avec les données de base nécessaire à votre application (utilisateur admin, configuration diverses..).
 
-  After we add our first database table there will also be a SQLite database file named `dev.db` and a directory called `migrations` created for us. `migrations` contains the files that act as snapshots of the database schema changing over time.
+  Lorsque nous aurons créé notre première table dans la base de données, nous trouverons également à cet endroit une base de données SQLite sous la forme d’un fichier `dev.db`, ainsi qu’un répertoire `migrations` contenant des captures successives du schéma au fil de son évolution.
 
-- `src` contains all other backend code. `api/src` contains four more directories:
-  - `functions` will contain any [lambda functions](https://docs.netlify.com/functions/overview/) your app needs in addition to the `graphql.js` file auto-generated by Redwood. This file is required to use the GraphQL API.
-  - `graphql` contains your GraphQL schema written in a Schema Definition Language (the files will end in `.sdl.js`).
-  - `lib` contains one file, `db.js`, which instantiates the Prisma database client. You are free to send additional options, if necessary. You can use this directory for other code related to the API side that doesn't fit in `functions` or `services`.
-  - `services` contains business logic related to your data. When you're querying or mutating data for GraphQL, that code ends up here, but in a format that's reusable in other places in your application.
+- `src` contient l'ensemble du code côté backend. `api/src` contient quatre répertoires supplémentaires :
+  - `functions` contiendra toutes les [fonctions lambda](https://docs.netlify.com/functions/overview/) utilisées par votre application en plus du fichier `graphql.js` généré automatiquement par Redwood. Ce dernier fichier est requis pour utiliser une API GraphQL.
+  - `graphql` contient votre schéma GraphQL écrit au format SDL (Schema Definition Language). Les fichiers SDL se terminent par `.sdl.js`.
+  - `lib` contient un seul fichier, `db.js`, qui instancie le client Prisma utilisé pour dialoguer avec la base de données. Vous pouvez parfaitement personnaliser ce fichier en ajoutant des options supplémentaires. Vous pouvez utiliser ce répertoire pour tout code relatif au côté API de votre application qui ne trouverai pas sa place dans `functions` ou `services`.
+  - `services` contient la logique métier de votre application. Lorsque vous effectuez une requête ou une mutation de données via GraphQL, ce code se trouve ici dans un format réutilisable depuis d’autres endroits de votre application.
 
-That's it for the backend.
+Et nous en avons terminé avec la partie backend.
 
-### The /web Directory
+### Le répertoire /web
 
-- `src` contains several subdirectories:
-  - `components` contain your traditional React components as well as Redwood _Cells_ (more about those soon).
-  - `layouts` contain HTML/components that wrap your content and are shared across _Pages_.
-  - `pages` contain components and are optionally wrapped inside _Layouts_ and are the "landing page" for a given URL (a URL like `/articles/hello-world` will map to one page and `/contact-us` will map to another). There are two pages included in a new app:
-    - `NotFoundPage.js` will be served when no other route is found (see `Routes.js` below).
-    - `FatalErrorPage.js` will be rendered when there is an uncaught error that can't be recovered from and would otherwise cause our application to really blow up (normally rendering a blank page).
-- `public` contains assets not used by React components (they will be copied over unmodified to the final app's root directory):
-  - `favicon.png` is the icon that goes in a browser tab when your page is open (apps start with the RedwoodJS logo).
-  - `robots.txt` can be used to control what web indexers are [allowed to do](https://www.robotstxt.org/robotstxt.html).
-  - `README.md` explains how, and when, to use the `public` folder for static assets. It also covers best practices for importing assets within components via Webpack. You can also [read this README.md file on GitHub](https://github.com/redwoodjs/create-redwood-app/tree/main/web/public).
-- `index.css` is a generic place to put your CSS, but there are many options.
-- `index.html` is the standard React starting point for our app.
-- `index.js` the bootstraping code to get our Redwood app up and running.
-- `Routes.js` the route definitions for our app which map a URL to a _Page_.
+- `src` contient plusieurs sous-répertoires :
+  - `components` contient vos composants React traditionnels ainsi que les _Cells_ introduites par Redwood (nous y reviendrons bientôt en détail).
+  - `layouts` contient du code HTML sous forme de composants qui viennent entourer le contenu de votre application et sont partagés par les différentes _Pages_.
+  - `pages` contient des composants souvent insérés dans les _Layouts_ et qui constituent les points d'entrées de votre application pour une URL donnée (une URL comme `/articles/hello-world` correspondra ainsi à une page tandis que `/contact-us` correspondra à une autre page). Chaque nouvelle application comprend deux pages par défaut :
+    - `NotFoundPage.js` qui est utilisée lorsqu’aucune route n’est trouvée par le routeur (voir `Routes.js` plus bas).
+    - `FatalErrorPage.js` qui est utilisée lorsqu’une erreur survient, qu’elle n’a pas été gérée, et qu’il n’est pas possible de poursuivre plus avant sans faire exploser l’application (en général il s’agit d’une page blanche).
+- `public` contient des ressources non utilisées par vos composants React (En bout de chaîne, ces ressources seront copiées sans être modifiées dans le répertoire racine de l’application finale):
+  - `favicon.png` est l’icône utilisée par les onglets des navigateurs lorsqu’une page est ouverte (par défaut il s’agit du logo RedwoodJS).
+  - `robots.txt` est utilisé pour controller ce que les moteurs de recherche sont [autorisé à indexer](https://www.robotstxt.org/robotstxt.html).
+  - `README.md` explique comment, et quand, utiliser le répertoire `public` pour vos ressources statiques. Il mentionne également les bonnes méthodes pour importer des ressources à l'intérieur des composants via Webpack. Vous pouvez également lire à ce sujet ce [fichier README.md sur GitHub](https://github.com/redwoodjs/create-redwood-app/tree/main/web/public).
+- `index.css` est l'endroit par défaut où placer vos règles CSS. Il existe cependant d’autres possibilités avancées.
+- `index.html` est le point d’entrée React standard de votre application.
+- `index.js` contient le code de démarrage pour une application Redwood.
+- `Routes.js` contient les définitions des routes de l’application afin de faire correspondre chaque URL à une _Page_.
 
-## Our First Page
+## Notre Première Page
 
-Let's give our users something to look at besides the Redwood welcome page. We'll use the `redwood` command line tool to create a page for us:
+Donnons à nos utilisateurs quelque chose de plus à contempler que la page d'accueil de Redwood. Utilisons la commande `redwood` pour créer une première page :
 
     yarn redwood generate page home /
 
-The command above does three things:
+Cette commande fait les choses suivantes :
 
-- Creates `web/src/pages/HomePage/HomePage.js`. Redwood takes the name you specified as the first argument, capitalizes it, and appends "Page" to construct your new page component.
-- Creates a test file to go along with this new page component at `web/src/pages/HomePage/HomePage.test.js` with a single, passing test. You _do_ write tests for your components, _don't you??_
-- Creates a Storybook file for this component at `web/src/pages/HomePage/HomePage.stories.js`. Storybook is a wonderful tool for efficiently developing and organizing UI components. If you'd like to learn more, see this [Redwood Forum topic](https://community.redwoodjs.com/t/how-to-use-the-new-storybook-integration-in-v0-13-0/873) to start using it in your development process.
-- Adds a `<Route>` in `web/src/Routes.js` that maps the path `/` to the new _HomePage_ page.
+- Création de `web/src/pages/HomePage/HomePage.js`. Redwood prend le nom spécifié comme premier argument, le met en majuscules et le suffixe avec "Page" pour construire votre nouveau composant de type Page.
+- Création d’un fichier de test du composant `web/src/pages/HomePage/HomePage.test.js` avec un simple test d’exemple à l’intérieur. Vous écrivez _toujours_ les tests de vos composants, _n’est-ce pas ??_
+- Création d’un fichier Storybook `web/src/pages/HomePage/HomePage.stories.js`. Storybook est un outil formidable pour développer efficacement et organiser vos composants. Si vous souhaitez en savoir plus jetez un oeuil à ce [sujet sur le forum Redwood](https://community.redwoodjs.com/t/how-to-use-the-new-storybook-integration-in-v0-13-0/873) pour apprendre comment l’utiliser.
+- Ajout d’une `<Route>` dans `web/src/Routes.js` qui fait correspondre le chemin `/` à la nouvelle page _HomePage_.
 
 > **Automatic import of pages in Routes file**
 >
