@@ -39,7 +39,6 @@ Pendant l’installation, RedwoodJS commence par verifier si votre système poss
 - node: ">=12"
 - yarn: ">=1.15"
 
-👉 **Heads Up:** If your system versions do not meet both requirements, _the installation bootstrap will result in an ERROR._ To check, please run the following from your terminal command line:
 👉 **Important:** Si votre système ne repond pas à ces prérequis, _l’installation se soldera par une ERREUR._ Vérifiez en exécutant les commandes suivantes dans un terminal:
 
 ```
@@ -64,7 +63,6 @@ Procédez aux mises à jour le cas échéant, puis relancez l’installation de 
 >   - Pour les utilisateurs de **Linux**, vous pouvez suivre les [instructions d'installation pour `nvm`](https://github.com/nvm-sh/nvm#installing-and-updating).
 > - Nous recommandons aux utilisateurs de **Windows** de visiter [Nodejs.org](https://nodejs.org/en/) pour savoir comment procéder.
 >
-> If you're confused about which of the two current Node versions to use, we recommend using the most recent "even" LTS, which is currently v12.
 > Si vous êtes un peu perdu au moment de choisir quelle version de Node utiliser, nous vous recommandons la plus récente LTS avec un numéro de version pair, actuellement il s'agit de la v12.
 
 ## Installation & Démarrage du développement
