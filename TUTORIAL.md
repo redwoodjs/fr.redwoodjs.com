@@ -82,12 +82,10 @@ Votre navigateur web devrait se lancer automatiquement et ouvrir `http://localho
 
 ![Redwood Welcome Page](https://user-images.githubusercontent.com/300/73012647-97a43d00-3dcb-11ea-8554-42df29c36e4a.png)
 
-> Remembering the port number is as easy as counting: 8-9-10!
 > Mémoriser le numéro de port est très simple, comptez simplement: 8-9-10!
 
 ### Premier Commit
 
-Now that we have the skeleton of our Redwood app in place, it's a good idea to save the current state of the app as your first commit...just in case.
 Maintenant que nous avons le squelette de notre application Redwood, c'est le bon moment pour enregistrer notre travail avec un premier commit... au cas où.
 
     git init
