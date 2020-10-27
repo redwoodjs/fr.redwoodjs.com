@@ -85,7 +85,7 @@ In order to integrate RBAC in a RedwoodJS app, you will have to:
 - Enforce Access
 - Secure Web and Api sides
 
-Helps to be familiar with [Blog Tutorial](https://redwoodjs.com/tutorial/welcome-to-redwood) as well as pages, cells, services, authentication, and routes.
+Helps to be familiar with [Blog Tutorial](https://redwoodjs.com/tutorial/bienvenue-chez-redwood) as well as pages, cells, services, authentication, and routes.
 
 ## Identity as a Service
 

@@ -39,14 +39,14 @@
 
 [[redirects]]
   from = "/tutorial"
-  to = "/tutorial/welcome-to-redwood"
+  to = "/tutorial/bienvenue-chez-redwood"
   status = 301
   force = true
 
 [[headers]]
-  for = "/tutorial/welcome-to-redwood"
+  for = "/tutorial/bienvenue-chez-redwood"
   [headers.values]
-    Turbolinks-Location = "/tutorial/welcome-to-redwood"
+    Turbolinks-Location = "/tutorial/bienvenue-chez-redwood"
 
 [[redirects]]
   from = "/cookbook"
