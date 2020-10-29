@@ -255,9 +255,9 @@ Remarquons ici plusieurs points :
 
   Si vous n'aimez pas le nom que la commande `redwood generate` utilise pour votre route, vous pouvez parfaitement le changer dans le fichier `Routes.js`! Les routes nommées sont extrêmement utiles car, si vous désirez modifiez le chemin associé avec une route, il vous suffit de le modifier dans le fichier `Routes.js` et immédiatement tous les liens qui utilisent cette route pointerons au bon endroit. Vous pouvez également passer directement une chaîne de caractères à l'attribut `to`, mais alors vous ne bénéficiez plus de ce mécanisme bien utile. 
 
-### Back Home
+### Retour à la maison
 
-Once we get to the About page we don't have any way to get back so let's add a link there as well:
+Une fois sur la page "About", nous n'avons aucun moyen de revenir en arrière. Pour y remédier, ajoutons également un lien à cet endroit:
 
 ```javascript{3,7-25}
 // web/src/pages/AboutPage/AboutPage.js
@@ -279,10 +279,10 @@ const AboutPage = () => {
       </header>
       <main>
         <p>
-          This site was created to demonstrate my mastery of Redwood: Look on my
-          works, ye mighty, and despair!
+          Ce site est créé avec pour seule intention de démontrer la puissance créative de Redwood! Oui, c'est très 
+          impressionant :D
         </p>
-        <Link to={routes.home()}>Return home</Link>
+        <Link to={routes.home()}>Retour à la page d'accueil</Link>
       </main>
     </>
   )
@@ -291,29 +291,29 @@ const AboutPage = () => {
 export default AboutPage
 ```
 
-Great! Try that out in the browser and verify you can get back and forth.
+Bien! Affichons cette page dans le navigateur and vérifions que nous pouvons aller et venir entre les différentes pages.
 
-As a world-class developer you probably saw that copy-and-pasted `<header>` and gasped in disgust. We feel you. That's why Redwood has a little something called _Layouts_.
+En tant que développeur de classe cosmique, vous avez probablement repéré ce copier-coller un peu lourd du `<header>`. Nous aussi. C'est la raison pour laquelle Redwood dispose d'un petite chose bien pratique appelé "_Layout_"."
 
 ## Layouts
 
-One way to solve the `<header>` dilemma would be to create a `<Header>` component and include it in both `HomePage` and `AboutPage`. That works, but is there a better solution? Ideally there should only be one reference to the `<header>` anywhere in our code.
+Une façon de résoudre la duplication du `<header>` aurait pu être de créer un composant `<Header>` et l'inclure à la fois dans `HomePage` et `AboutPage`. C'est valide! Mais il y a beaucoup mieux... Dans l'idéal, votre code ne devrait comporter qu'une seule et unique balise `<header>`.
 
-When you look at these two pages what do they really care about? They have some content they want to display. They really shouldn't have to care what comes before (like a `<header>`) or after (like a `<footer>`). That's exactly what layouts do: they wrap your pages in a component that then renders the page as its child:
+Lorsque vous regardez à ces deux pages, quelle est leur raison d'être principale? Toutes deux ont un peu de contenu à afficher. Toutes deux ne devraient pas avoir à connaître ce qui vient avant ce contenu (comme un `<header>`), ou après ce même contenu (come un `<footer>`). C'est exactement ce que font les "Layouts": ils entourent une page dans un composant qui va ensuite afficher à l'intérieur le contenu de la page:
 
-<img src="https://user-images.githubusercontent.com/300/70486228-dc874500-1aa5-11ea-81d2-eab69eb96ec0.png" alt="Layouts structure diagram" width="300">
+<img src="https://user-images.githubusercontent.com/300/70486228-dc874500-1aa5-11ea-81d2-eab69eb96ec0.png" alt="Diagramme de structure des Layouts" width="300">
 
-Let's create a layout to hold that `<header>`:
+Utilisons Redwood pour générer un layout contenant ce `<header>` :
 
     yarn redwood g layout blog
 
-> **`generate` shorthand**
+> ** raccourci `generate`**
 >
-> From now on we'll use the shorter `g` alias instead of `generate`
+> Désormais nous utiliserons le raccourci `g` à la place de `generate`
 
-That created `web/src/layouts/BlogLayout/BlogLayout.js` and an associated test file. We're calling this the "blog" layout because we may have other layouts at some point in the future (an "admin" layout, perhaps?).
+Ce faisant, nous avons créé le fichier `web/src/layouts/BlogLayout/BlogLayout.js` et un son fichier de test associé. Nous appellerons ce dernier le "blog" layout car nous aurons certainement d'autres layout plus tard (un layout "admin" par exemple).
 
-Cut the `<header>` from both `HomePage` and `AboutPage` and paste it in the layout instead. Let's take out the duplicated `<main>` tag as well:
+Supprimez ce `<header>` de `HomePage` et `AboutPage` et copier son contenu à l'intérieur du layout. Supprimons également le doublon de la balise `<main>` par la même occasion.
 
 ```javascript{3,7-19}
 // web/src/layouts/BlogLayout/BlogLayout.js
@@ -341,7 +341,7 @@ const BlogLayout = ({ children }) => {
 export default BlogLayout
 ```
 
-`children` is where the magic will happen. Any page content given to the layout will be rendered here. Back to `HomePage` and `AboutPage`, we add a `<BlogLayout>` wrapper and now they're back to focusing on the content they care about (we can remove the import for `Link` and `routes` from `HomePage` since those are in the Layout instead):
+`children` est l'endroit où la magie opère! Toute page passée en argument à un layout s'affiche là. Pour en revenir à `HomePage` et `AboutPage`, en les entourant simplement au sein du `<BlogLayout>`, nos deux pages ne font désormais que ce qu'elles sont supposées faire: afficher leur contenu. Nous pouvons maintenant supprimer les imports de `Link`et `Route` puisqu'ils figurent également dans le Layout.
 
 ```javascript{3,6}
 // web/src/pages/HomePage/HomePage.js
@@ -364,10 +364,10 @@ import BlogLayout from 'src/layouts/BlogLayout'
 const AboutPage = () => {
   return (
     <BlogLayout>
-      <p>
-        This site was created to demonstrate my mastery of Redwood: Look on my
-        works, ye mighty, and despair!
-      </p>
+        <p>
+          Ce site est créé avec pour seule intention de démontrer la puissance créative de Redwood! Oui, c'est très 
+          impressionant :D
+        </p>
       <Link to={routes.home()}>Return home</Link>
     </BlogLayout>
   )
@@ -376,23 +376,23 @@ const AboutPage = () => {
 export default AboutPage
 ```
 
-> **The `src` alias**
+> **L'alias `src`**
 >
-> Notice that the import statement uses `src/layouts/BlogLayout` and not `../src/layouts/BlogLayout` or `./src/layouts/BlogLayout`. Being able to use just `src` is a convenience feature provided by Redwood: `src` is an alias to the `src` path in the current workspace. So if you're working in `web` then `src` points to `web/src` and in `api` it points to `api/src`.
+> Remarquez que l'import utilise `src/layouts/BlogLayout` et non `../src/layouts/BlogLayout` ou `./src/layouts/BlogLayout`. Pouvoir se contenter d'ajouter uniquement `src` est un petit apport bien pratique de Redwood: `src` est un alias pour le chemin du répertoire `src` du workspace courant. En d'autres termes, lorsque vous travaillez dans `web`, `src` pointe vers `web/src`. Et lorsque vous travaillez dans `api` il pointe vers `api/src`. 
 
-Back to the browser and you should see...nothing different. But that's good, it means our layout is working.
+Revenez donc dans votre navigateur, et vous devriez alors voir...... rien de nouveau. Et c'est très bien! Votre layout fonctionne parfaitement.
 
-> **Why are things named the way they are?**
+> **Pourquoi certaines choses sont nommées d'une certaine façon?**
 >
-> You may have noticed some duplication in Redwood's file names. Pages live in a directory called `/pages` and also contain `Page` in their name. Same with Layouts. What's the deal?
+> Il est possible que vous ayez remarqué quelques répetitions dans le nom des fichiers utilisés par Redwood. Ainsi les pages se trouvent dans un répertoire appelé `/pages`, et contiennent de nouveau `Page` dans leur nom. Idem pour les Layouts. Pourquoi de choix?
 >
-> When you have dozens of files open in your editor it's easy to get lost, especially when you have several files with names that are similar or even the same (they happen to be in different directories). We've found that the extra duplication in the names of files is worth the productivity benefit when scanning through your open tabs.
+> Lorsque vous avez des dizaines de fichiers ouverts dans votre éditeur de code, il est facile de se perdre. C'est d'autant plus le cas lorsque vous avez des fichiers aux noms similaires dans des répertoires différents. A l'usage, il nous est apparut que cette petite répetition dans les noms était au final bien pratique lorsqu'il s'agit de repérer un fichier précis parmi tous les onglets ouverts..
 >
-> If you're using the [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) plugin this also helps disambiguate when browsing through your component stack:
+> Le plugin [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) peut également vous aider à distinguer les fichiers entre eux.
 >
 > <img src="https://user-images.githubusercontent.com/300/73025189-f970a100-3de3-11ea-9285-15c1116eb59a.png" width="400">
 
-### Back Home Again
+### Retour à la Maison, encore une fois
 
 One more `<Link>`, let's have the title/logo link back to the homepage as per usual:
 
