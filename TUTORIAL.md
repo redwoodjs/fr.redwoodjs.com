@@ -394,7 +394,7 @@ Revenez donc dans votre navigateur, et vous devriez alors voir...... rien de nou
 
 ### Retour à la Maison, encore une fois
 
-One more `<Link>`, let's have the title/logo link back to the homepage as per usual:
+Ajoutons encore un autre `<Link>` de façon à ce que le titre et le logo pointent vers la page d'accueil:
 
 ```javascript{9-11}
 // web/src/layouts/BlogLayout/BlogLayout.js
@@ -424,7 +424,7 @@ const BlogLayout = ({ children }) => {
 export default BlogLayout
 ```
 
-And then we can remove the extra "Return to Home" link (and Link/routes import) that we had on the About page:
+Enfin nous pouvons éliminer de la page About le lien "Retour à la page d'accueil" devenu superflu (ainsi que les imports `Link` et `routes` associés).
 
 ```javascript
 // web/src/pages/AboutPage/AboutPage.js
@@ -435,8 +435,8 @@ const AboutPage = () => {
   return (
     <BlogLayout>
       <p>
-        This site was created to demonstrate my mastery of Redwood: Look on my
-        works, ye mighty, and despair!
+        Ce site est créé avec pour seule intention de démontrer la puissance créative de Redwood! Oui, c'est très 
+        impressionant :D
       </p>
     </BlogLayout>
   )
