@@ -445,26 +445,26 @@ const AboutPage = () => {
 export default AboutPage
 ```
 
-## Getting Dynamic
+## Devenir Dynamique
 
-Part 2 of the video tutorial picks up here:
+La seconde partie du didacticiel est disponible en video ici:
 
 <div class="relative pb-9/16">
   <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/SP5vbsWf5Yg?rel=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; modestbranding; showinfo=0" allowfullscreen></iframe>
 </div>
 
-These two pages are great and all but where are the actual blog posts in this blog? Let's work on those next.
+Ces deux pages sont plutôt sympas, mais un blog sans article c'est tout de même un peu léger! Travaillons sur ce point à présent.
 
-For the purposes of our tutorial we're going to get our blog posts from a database. Because relational databases are still the workhorses of many complex (and not-so-complex) web applications, we've made SQL access a first-class citizen. For Redwood apps, it all starts with the schema.
+Pour les besoins de ce didacticiel, nous allons récupérer nos articles depuis la base de données. Puisque les bases de données relationelles sont encore aujourd'hui au coeur de beaucoup d'applications complexes (ou moins complexes d'ailleurs), nous avons fait en sorte de réserver un traitement de première classe aux accès SQL. Dans une application Redwood, tout part du schéma. 
 
-### Creating the Database Schema
+### Créer le schéma de la base de données
 
-We need to decide what data we'll need for a blog post. We'll expand on this at some point, but at a minimum we'll want to start with:
+Nous devons identifier quelles données seront nécessaires pour un article. Plus tard nous ajouterons d'autres éléments, mais pour commencer nous avons besoin de ceci:
 
-- `id` the unique identifier for this blog post (all of our database tables will have one of these)
-- `title`
-- `body` the actual content of the blog post
-- `createdAt` a timestamp of when this record was created
+- `ìd` l'identifiant unique pour un article (chaque table de notre base de données aura également un identifiant tel que celui-ci)
+- `title` le titre de l'article
+- `body` le contenu de l'article
+- `createdAt` un 'timestamp' correspondant au moment où l'article est enregistré dans la base de données
 
 We use [Prisma Client JS](https://github.com/prisma/prisma-client-js) to talk to the database. Prisma has another library called [Migrate](https://github.com/prisma/migrate) that lets us update the database's schema in a predictable way and snapshot each of those changes. Each change is called a _migration_ and Migrate will create one when we make changes to our schema.
 
