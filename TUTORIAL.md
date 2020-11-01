@@ -466,9 +466,9 @@ Nous devons identifier quelles données seront nécessaires pour un article. Plu
 - `body` le contenu de l'article
 - `createdAt` un 'timestamp' correspondant au moment où l'article est enregistré dans la base de données
 
-We use [Prisma Client JS](https://github.com/prisma/prisma-client-js) to talk to the database. Prisma has another library called [Migrate](https://github.com/prisma/migrate) that lets us update the database's schema in a predictable way and snapshot each of those changes. Each change is called a _migration_ and Migrate will create one when we make changes to our schema.
+Nous utilisons [Prisma Client JS](https://github.com/prisma/prisma-client-js) pour parler vac la base de données. Prisma possède aun autre librairie, appellée [Migrate](https://github.com/prisma/migrate), qui nous permet de mettre à jour le schéma de la base de données en capturant chaque changement successif. Chacun de ces changement est appelé _migration_, et cette librairie Migrate en créé un nouveau à chaque modification du schéma.  
 
-First let's define the data structure for a post in the database. Open up `api/prisma/schema.prisma` and add the definition of our Post table (remove any "sample" models that are present in the file). Once you're done the entire schema file should look like:
+Tout d'abord, définissons la structure d'un article de notre blog dans la base de données. Ouvrez `api/prisma/schema.prisma` et ajoutez la définition de la table `Post` (supprimez au passage tous les modèles présents par défaut dans ce fichier). Une fois terminé, le fichier se présente ainsi: 
 
 ```plaintext{13-18}
 // api/prisma/schema.prisma
@@ -491,126 +491,126 @@ model Post {
 }
 ```
 
-This says that we want a table called `Post` and it should have:
+Cette série d'instructions signifie que nous voulons créer une table `Post` avec les éléments suivants:
 
-- An `id` column of type `Int`, we let Prisma know this is the column it should use as the `@id` (for it to create relationships to other tables) and that the `@default` value should be Prisma's special `autoincrement()` method letting it know that the DB should set it automatically when new records are created
-- A `title` field that will contain a `String`
-- A `body` field that will contain a `String`
-- A `createdAt` field that will be a `DateTime` and will `@default` to `now()` when we create a new record (so we don't have to set the time manually in our app)
+- Un champ `id` de type `Int`, nous précisions à Prisma que cette colonne constitue un identifiant `@id` (de façon à pouvoir créer des relations avec d'autres tables) et que la valeur par `@default` correspond à la fonction Prisma `autoincrement()` impliquant que la base de données insèrera une nouvelle valeur automatiquement lorsqu'un enregistrement est créé.
+- Un champ `title` de type `String`
+- Un champ `body` également de type `String`
+- Un champ `createdAt` de type `DateTime` avec une valeur par `@default` égale à `now()` pour chaque nouvel enregistrement (ainsi nous n'avons pas à nous en charger dans l'application, la base de données le fera pour nous)
 
-> **Integer vs. String IDs**
+> **Identifiant de type Integer vs. identifiant de type String**
 >
-> For the tutorial we're keeping things simple and using an integer for our ID column. Some apps may want to use a CUID or a UUID which Prisma supports. In that case you would use `String` for the datatype instead of `Int` and use `cuid()` or `uuid()` instead of `autoincrement()`:
+> Pour le didacticiel, nous resterons simple et utiliserons un identifiant de type Integer. Ceci étant, une application plus évoluée pourra utiliser un identifiant de type CUID ou UUID. Tous deux sont pris en charge par Prisma. Dans ce cas, vous utiliseriez un champ de type `String` au lieu de `Int`, et `cuid()` ou `uuid()` au lieu de `autoincrement()`:
 >
 > `id String @id @default(cuid())`
 >
-> Integers also make for nicer URLs like https://redwoodblog.com/posts/123 instead of https://redwoodblog.com/posts/eebb026c-b661-42fe-93bf-f1a373421a13. 
+> Notez que l'utilisation d'un identifiant de type Integer permet d'obtenir des url plus simples comme https://redwoodblog.com/posts/123 instead of https://redwoodblog.com/posts/eebb026c-b661-42fe-93bf-f1a373421a13. 
 >
-> Take a look at the [official Prisma documentation](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/data-model#defining-an-id-field) for more on ID fields.
+> Allez voir la [documentation officielle de Prisma](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/data-model#defining-an-id-field) pour plus de détails sur les champs identifiants.
 
 ### Migrations
 
-That was simple. Now we'll want to snapshot this as a migration:
+Bon, la création du schéma : c'est fait! Maintenant ce que nous vonlons c'est capturer son état pour en faire une _migration_:
 
     yarn redwood db save create posts
 
-You've named the migration "create posts", and this is for your own benefit—Redwood doesn't care about the migration's name, it's just a reference for future developers.
+Ce faisant, vous venez de nommer votre première migration "create posts". Redwood ne tient pas compte de ce nom, mais il est recommandé de choisir un nom significatif pour les autres développeurs de votre équipe.
 
-After the command completes you'll see a new subdirectory created under `api/prisma/migrations` that has a timestamp and the name you gave the migration. It will contain a couple files inside (a snapshot of what the schema looked like at that point in time in `schema.prisma` and the directives that Prisma Migrate will use to make the change to the database in `steps.json`).
+Une fois la commande exécutée, vous pourrez constater la création d'un nouveau sous-répertoire dans `api/prisma/migrations` avec un _timestamp_ et le nom que vous avez donné votre migration. Ce sous-répertoire contient quelques fichiers: une capture du schéma de la base dans `schema.prisma`, ainsi que la suite de directives que Prima utilise pour effectuer les modifications dans `steps.json`).
 
-We apply the migration with another command:
+Nous allons maintenant appliquer cette migration avec cette commande:
 
     yarn rw db up
 
-> **`redwood` Shorthand**
+> **Raccourçi `redwood` **
 >
-> From now on we'll use the shorter `rw` alias instead of the full `redwood` name.
+> Désormais, nous utiliserons dans nos commandes la forme courte `rw` à la place de `redwood`.
 
-This will apply the migration (which runs the commands against the database to create the changes we need) which results in creating a new table called `Post` with the fields we defined above.
+L'exécution de cette commande permet à Prisma d'appliquer les changements sur la base de données, en l'espèce la création d'une nouvelle table `Post` avec les champs définis plus haut.
 
-### Creating a Post Editor
+### Créer une Interface d'Édition d'un Article
 
-We haven't decided on the look and feel of our site yet, but wouldn't it be amazing if we could play around with posts without having to build a bunch of pages that we'll probably throw away once the design team gets back to us? Lucky for us, "Amazing" is Redwood's middle name! It has no last name.
+Nous n'avons pas encore décidé du look de notre site, mais ne serait-il pas extra si nous pouvions commencer à manipuler nos articles de blog, commencer à créer quelques pages rapidement le temps que l'équipe chargée du design rende sa copie? Heureusement pour nous, "Incroyable" est le petit nom de Redwood :)
 
-Let's generate everything we need to perform all the CRUD (Create, Retrieve, Update, Delete) actions on posts so we can not only verify that we've got the right fields in the database, but let us get some sample posts in there so we can start laying out our pages and see real content. Redwood has a generator for just the occasion:
+Générons tout ce sont nous avons besoin pour réaliser un CRUD (Create, Retrieve, Update, Delete) (Créer, Récupérer, Mettre à jour, Supprimer) sur nos articles. Redwood a justement un generateur spécialement fait pour ça :
 
     yarn rw g scaffold post
 
-Let's point the browser to `http://localhost:8910/posts` and see what we have:
+Ouvrons la page `http://localhost:8910/posts` et constatons le résultat:
 
 <img src="https://user-images.githubusercontent.com/300/73027952-53c03080-3de9-11ea-8f5b-d62a3676bbef.png" />
 
-Well that's barely more than we got when we generated a page. What happens if we click that "New Post" button?
+Humm.. ça n'est pas beaucoup plus que ce que nous avions obtenu losque nous avions créé notre première page. Que se passe-t-il lorsque nous cliquons sur le bouton "New Post" (Nouvel Article) ?
 
 <img src="https://user-images.githubusercontent.com/300/73028004-72262c00-3de9-11ea-8924-66d1cc1fceb6.png" />
 
-Okay, now we're getting somewhere. Fill in the title and body and click "Save".
+Ah, maintenant on commence à parler sérieusement! Remplissez donc les champs _title_ (titre) et _body_ (contenu), puis cliquez sur "Save" pour enregistrer.
 
 <img src="https://user-images.githubusercontent.com/300/73028757-08a71d00-3deb-11ea-8813-046c8479b439.png" />
 
-Did we just create a post in the database? And then show that post here on this page? Yes, yes we did. Try creating another:
+Venons-nous bien de créer un nouvel article? Exactement! Essayez-donc d'en créer d'autres.
 
 <img src="https://user-images.githubusercontent.com/300/73028839-312f1700-3deb-11ea-8e83-0012a3cf689d.png" />
 
-But what if we click "Edit" on one of those posts?
+Et maintenant, que se passe-t-il lorsqu'on clique sur "Edit" (éditer) pour l'un de ces articles?
 
 <img src="https://user-images.githubusercontent.com/300/73031307-9802ff00-3df0-11ea-9dc1-ea9af8f21890.png" />
 
-Okay but what if we click "Delete"?
+D'accord, et en cliquant sur le bouton "Delete" (supprimer)?
 
 <img src="https://user-images.githubusercontent.com/300/73031339-aea95600-3df0-11ea-9d58-475d9ef43988.png" />
 
-So, Redwood just created all the pages, components and services necessary to perform all CRUD actions on our posts table. No need to open a database GUI or login through a terminal window and write SQL from scratch. Redwood calls these _scaffolds_. Pretty neat, right?
+Oui c'est bien ça, en une seule commande, Redwood à créé l'ensemble des pages, composants et services nécessaires aux opérations usuelles de manipulation des articles. Pas même besoin d'ouvrir le gestionnaire de base de données. Redwood appelle ceci des _scaffolds_. Pas mal, non?
 
-Here's what happened when we ran that `yarn rw g scaffold post` command:
+Voici dans le détail ce qui arrive lorsqu'on execute la commande `yarn rw g scaffold post` : 
 
-- Added an _SDL_ file to define several GraphQL queries and mutations in `api/src/graphql/posts.sdl.js`
-- Added a _services_ file in `api/src/services/posts/posts.js` that makes the Prisma Client JS calls to get data in and out of the database
-- Created several _pages_ in `web/src/pages`:
-  - `EditPostPage` for editing a post
-  - `NewPostPage` for creating a new post
-  - `PostPage` for showing the detail of a post
-  - `PostsPage` for listing all the posts
-- Created routes for those pages in `web/src/Routes.js`
-- Created three _cells_ in `web/src/components`:
-  - `EditPostCell` gets the post to edit in the database
-  - `PostCell` gets the post to display
-  - `PostsCell` gets all the posts
-- Created four _components_ also in `web/src/components`:
-  - `NewPost` displays the form for creating a new post
-  - `Post` displays a single post
-  - `PostForm` the actual form used by both the New and Edit components
-  - `Posts` displays the table of all posts
+- Ajout d'un fichier _SDL_ pour définir quelques requêtes et mutations GraphQL dans `api/src/graphql/posts.sdl.js` 
+- Ajout d'un fichier _service_ `api/src/services/posts/posts.js` qui permet au client Javascript Prisma de manipuler la base de données
+- Ajout de quelques _pages_ dans `web/src/pages`:  
+  - `EditPostPage` pour éditer un article
+  - `NewPostPage` pour créer un nouvel article
+  - `PostPage` pour montrer les détails d'un article
+  - `PostsPage` pour lister tous les articles
+- Ajout de _routes_ pour ces nouvelles pages dans `web/src/Routes.js`
+- Ajout de trois _cells_ dans `web/src/components`:
+  - `EditPostCell` cellule permettant de récupérer un article pour l'éditer
+  - `PostCell` cellule permettant de récupérer un article pour l'afficher
+  - `PostsCell` cellule permettant de récupérer tous les articles
+- Ajout de quatre _composants_ également dans `web/src/components`:
+  - `NewPost` affiche le formulaire permettant la création d'un nouvel article
+  - `Post` affiche un article en particulier
+  - `PostForm` le formulaire utilisé à la fois par les composants de création et d'édition d'un aricle 
+  - `Posts` affiche la table avec l'ensemble des articles
 
-> **Generator Naming Conventions**
+> **Générateurs et conventions de nommage**
 >
-> You'll notice that some of the generated parts have plural names and some have singular. This convention is borrowed from Ruby on Rails which uses a more "human" naming convention: if you're dealing with multiple of something (like the list of all posts) it will be plural. If you're only dealing with a single something (like creating a new post) it will be singular. It sounds natural when speaking, too: "show me a list of all the posts" versus "I'm going to create a new post."
+> Vous remarquerez que certains fichiers générés ont un nom au pluriel, et d'autres au singulier. Cette convention est empruntée au framework Ruby on Rails. Lorsque vous avez à traiter d'un multiple de quelque chose (comme par exemple une liste d'articles), on utilisera le pluriel. Dans le cas contraire (par exemple la création d'un nouvel article), on utilisera le singulier. C'est aussi plus naturel lorsque l'on parle: "montre moi une liste d'articles" vs. "je vais créer un nouvel article".
 >
-> As far as the generators are concerned:
+> Pour ce qui concerne les générateurs:
 >
-> - Services filenames are always plural.
-> - The methods in the services will be singular or plural depending on if they are expected to return multiple posts or a single post (`posts` vs. `createPost`).
-> - SDL filenames are plural.
-> - Pages that come with the scaffolds are plural or singular depending on whether they deal with many or one post. When using the `page` generator it will stick with whatever name you give the command.
-> - Layouts use the name you give them on the command line.
-> - Components and cells, like pages, will be plural or singular depending on context when created by the scaffold generator, otherwise they'll use the given name on the command line.
+> - Les fichiers de Services sont toujours au pluriel.
+> - Les méthodes dans les Services sont au singulier ou au pluriel selon qu'ils retournent plusieurs articles ou un seul article (`posts` vs. `createPost`).
+> - les fichiers SDL sont toujours au pluriel.
+> - Les pages générées par une commande de scaffold sont au pluriel ou au singulier selon que la page manipule plusieurs ou un seul article. Notez que lorsque vous utilisez vous-même un commande `page` en dehors d'un scaffold, le nom utilisé sera simplement celui que vous donnerez.
+> - Les Layouts utilisent le nom que vous leur donnez
+> - Les composants et les cellules sont au pluriel ou au singulier selon le contexte lorsqu'ils sont générés par scaffolding. Dans le cas contraire, ils utilisent simplement le nom que vous leur donnez.
 >
-> Also note that it's the database table name part that's singular or plural, not the whole word. So it's `PostsCell`, not `PostCells`.
+> Remarquez également que seul le nom de la table en base de données et au singulier ou au pluriel, et pas le mot complet. Ainsi on a `PostsCell`, et non `PostCells`. 
 >
-> You don't have to follow this convention once you start creating your own parts but we recommend doing so. The Ruby on Rails community has come to love this nomenclature even though many people complained about it when first exposed to it. [Give it five minutes](https://signalvnoise.com/posts/3124-give-it-five-minutes).
+> Vous n'avez pas à suivre cette convention de façon obligatoire lorsque vous créez vos propres composants, pages, etc... Ceci étant nous vous le recommandons chaudement. Au bout du compte, la communauté Ruby on Rails a fini par s'attacher à cette convention, et ce même si au départ de nombreuses personnes s'y étaient opposées. "[Give it five minutes](https://signalvnoise.com/posts/3124-give-it-five-minutes)" comme disent les anglo-saxons.
 
-### Creating a Homepage
+### Créer la page d'accueil
 
-We can start replacing these pages one by one as we get designs, or maybe move them to the admin section of our site and build our own display pages from scratch. The public facing site won't let viewers create, edit or delete posts. What _can_ they do?
+Nous pouvons commencer à remplacer ces pages les unes après les autres au fur et à mesure que l'équipe chargée du design nous donne des éléments, ou bien nous pouvons simplement les déplacer dnas la partie "administration" de notre site, et commencer à créer nos propres pages. Ceci étant, la partie publique du site ne va certainement pas autoriser les utilisateurs à créer, éditer ou supprimer les articles. Que peuvent donc faire les utilisateurs?
 
-1. View a list of posts (without links to edit/delete)
-2. View a single post
+1. Voir la liste des articles (sans liens pour éditer ou supprimer)
+2. Voir le détail d'un article
 
-Since we'll probably want a way to create and edit posts going forward let's keep the scaffolded pages as they are and create new ones for these two items.
+Puisque nous voudront probablement conserver un moyen de créer et éditer des articles plus tard, conservons les pages générées par scaffolding et créons-en de nouvelles pour ces deux cas de figure.
 
-We already have `HomePage` so we won't need to create that. We want to display a list of posts to the user so we'll need to add that logic. We need to get the content from the database and we don't want the user to just see a blank screen in the meantime (depending on network conditions, server location, etc), so we'll want to show some kind of loading message or animation. And if there's an error retrieving the data we should handle that as well. And what about when we open source this blog engine and someone puts it live without any content in the database? It'd be nice if there was some kind of blank slate message.
+Nous avons déjà la `HomePage`, pas besoin de créer celle-ci donc. Nous souhaitons afficher une liste d'articles à l'utilisateur donc nous allons devoir ajouter ça. Nous avons besoin de récupérer le contenu depuis la base de données, et nous ne voulons pas que l'utilisateur soit face à une page blanche le temps du chargement (conditions réseau dégradées, serveur géographiquement distant, etc...), donc nous voudrons montrer une sorte de message de chargement et/ou une animation. D'autre part, si une erreur se produit, nous devrons faire en sorte de la prendre en charge. Enfin, nous devrons également prendre en compte le cas où le blog ne contient encore aucun article. 
 
-Oh boy, our first page with data and we already have to worry about loading states, errors, and blank slates...or do we?
+Wow... notre première page et il semble que nous avons déjà à nous inquiéter de tant de choses... mais est-ce véritablement le cas ? 
 
 ## Cells
 
