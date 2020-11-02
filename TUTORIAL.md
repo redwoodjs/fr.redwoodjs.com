@@ -614,9 +614,9 @@ Wow... notre première page et il semble que nous ayons déjà à nous inquiéte
 
 ## Cells
 
-These features are common in most web apps. We wanted to see if there was something we could do to make developers' lives easier when it comes to adding them to a typical component. We think we've come up with something to help. We call them _Cells_. Cells provide a simpler and more declarative approach to data fetching. (You can read the full documentation about Cells [here](https://redwoodjs.com/docs/cells).)
+Ce que nous cherchons à faire ici constituent en réalité des objectifs partagés par la plupart des applications web. Nous voulions voir s'il était possible de faciliter la vie aux développeurs. Nous pensons être arrivé à réaliser quelque chose d'utile. Nous appelons ça les _Cells_ (ou _cellules_ en français). Les Cells proposent une approche simple et déclarative pour récupérer des données au sein de vos composants. (Vous pouvez lire la documentation complète à propos des Cells. You can read the full documentation about Cells [ici](https://redwoodjs.com/docs/cells).
 
-When you create a cell you export several specially named constants and then Redwood takes it from there. A typical cell may look something like:
+Lorsque vous créez une nouvelle Cell, vous exportez quelques constantes, toujours nommées de façon identique, et Redwood s'appuie dessus pour mettre en place la mécanique. Une Cell ressemble typiquement à ceci:
 
 ```javascript
 export const QUERY = gql`
@@ -630,12 +630,12 @@ export const QUERY = gql`
   }
 `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = () => <div>Chargement...</div>
 
-export const Empty = () => <div>No posts yet!</div>
+export const Empty = () => <div>Aucun article disponible!</div>
 
 export const Failure = ({ error }) => (
-  <div>Error loading posts: {error.message}</div>
+  <div>Erreur lors du chargement des articles: {error.message}</div>
 )
 
 export const Success = ({ posts }) => {
@@ -648,27 +648,27 @@ export const Success = ({ posts }) => {
 }
 ```
 
-When React renders this component Redwood will:
+Lorsque React affiche ce composant, Redwood va:
 
-- Perform the `QUERY` and display the `Loading` component until a response is received
-- Once the query returns it will display one of three states:
-  - If there was an error, the `Failure` component
-  - If the data return is empty (`null` or empty array), the `Empty` component
-  - Otherwise, the `Success` component
+- Exécuter la requête `QUERY` et afficher le composant `Loading` jusqu'à ce qu'une réponse soit reçue
+- Lorsque la requête retourne une réponse, il va afficher un des trois états suivants:
+  - S'il y a eu une erreur, le composant `Failure`
+  - Si aucune donnée n'est retournée (c'est à dire `null` ou un tableau vide), le composant `Empty`
+  - Dans le cas contraire (ni erreur, ni vide), le composant `Success`
 
-There are also some lifecycle helpers like `beforeQuery` (for massaging any props before being given to the `QUERY`) and `afterQuery` (for massaging the data returned from GraphQL but before being sent to the `Success` component)
+Il existe également quelques outils supplémentaire pour générer le cycle de vie du composant comme `beforeQuery` (pour manipuler les propriétés passées à `QUERY`) et `afterQuery` (pour manipuler les données retournées par GraphQL avant qu'elles ne soient transmises au composant `Success`)
 
-The minimum you need for a cell are the `QUERY` and `Success` exports. If you don't export an `Empty` component, empty results will be sent to your `Success` component. If you don't provide a `Failure` component you'll get error output sent to the console.
+Le minimum dont vous avez besoin pour une Cell sont les exports `QUERY` et `Success`. Si vous n'exportez pas `Empty`, `Success` recevra les données vides. Si vous n'exportez pas `Failure`, les éventuelles erreurs seront envoyées à la console.
 
-A guideline for when to use cells is if your component needs some data from the database or other service that may be delayed in responding. Let Redwood worry about juggling what is displayed when and you can focus on the happy path of the final, rendered component populated with data.
+Pour déterminer dans quels cas utiliser les Cells, gardez en tête qu'elles sont utiles lorsque vos composants ont besoin de récupérer des données depuis la base, ou depuis tout autre service qui pourrait avoir un délai de réponse. Laissez Redwood se charger de jongler avec les états, de manière à pouvoir porter votre attention sur le comportement attendu de vos composants correctement affichés avec leur données.
 
-### Our First Cell
+### Notre Première Cell
 
-The homepage displaying a list of posts is a perfect candidate for our first cell. Naturally, there is a Redwood generator for them:
+La page d'accueil affichant une liste d'articles est un candidat parfait pour réaliser notre première cellule. Naturellement, nous avons prévu un générateur pour ça:
 
     yarn rw g cell BlogPosts
 
-This command will result in a new file at `/web/src/components/BlogPostsCell/BlogPostsCell.js` (and a test file) with some boilerplate to get you started:
+L'exécution de cette commande provoque la création d'un nouveau fichier `/web/src/components/BlogPostsCell/BlogPostsCell.js` (et son fichier de test associé) avec un peu de code par défaut pour vous faciliter la tâche:
 
 ```javascript
 // web/src/components/BlogPostsCell/BlogPostsCell.js
@@ -691,17 +691,16 @@ export const Success = ({ blogPosts }) => {
   return JSON.stringify(blogPosts)
 }
 ```
-
-> When generating you can use any case you'd like and Redwood will do the right thing when it comes to naming. These will all create the same filename:
+> Lorsque vous utilisez le générateur, vous pouvez employer le type de casse qui vous plaît. Redwood fera en sorte de s'adapter pour créer une cellule avec un nom de fichier correct. Ainsi toutes les commandes ci-dessous aboutissent à créer un fichier avec le même nom:
 >
 >     yarn rw g cell blog_posts
 >     yarn rw g cell blog-posts
 >     yarn rw g cell blogPosts
 >     yarn rw g cell BlogPosts
 >
-> You will need _some_ kind of indication that you're using more than one word. Calling `yarn redwood g cell blogposts` will generate a file at `web/src/components/BlogpostsCell/BlogpostsCell.js`
+> Vous devez juste pensez à indiquer d'une façon ou d'une autre que vous utilisez plusieurs mots. Appeler `yarn redwood g cell blogposts` sans utiliser aucune casse pour séparer "blog" et "posts" va générer un fichier `web/src/components/BlogpostsCell/BlogpostsCell.js`.  
 
-To get you off and running as quickly as possible the generator assumes you've got a root GraphQL query named the same thing as your cell and gives you the minimum query needed to get something out of the database. In this case it called the query `blogPosts` which is not a valid query name for our existing Posts SDL and Service. We'll have to rename that to just `posts` in both the query name and prop named in `Success`:
+Pour vous aider à être efficace, le générateur suppose que vous utiliserez une requête racine GraphQL nommées de la même façon que votre Cell et écrit pour vous une requête minimale pour récupérer des données depuis la base. Dans le cas présent, la requête a donc été nommée `blogPosts`. Cependant, ce nom de requête n'est pas valide par rapport à ce qui a déjà été créé dans nos fichiers SDL et Service. Nous devons donc renommer `blogPosts` en `posts` à la fois dans le nom de la requête GraphQL et dans la propriété passée à `Success`: 
 
 ```javascript{5,17,18}
 // web/src/components/BlogPostsCell/BlogPostsCell.js
@@ -725,7 +724,7 @@ export const Success = ({ posts }) => {
 }
 ```
 
-Let's plug this cell into our `HomePage` and see what happens:
+Insérons cette Cell dans notre `HomePage` et voyons ce qui se passe:
 
 ```javascript{4,9}
 // web/src/pages/HomePage/HomePage.js
@@ -744,13 +743,13 @@ const HomePage = () => {
 export default HomePage
 ```
 
-The browser should actually show an array with a number or two (assuming you created a blog post with our [scaffolding](/tutorial/getting-dynamic#creating-a-post-editor) from earlier). Neat!
+Le navigateur devrait en principe montrer un tableau avec un peu de contenu (en supposant que vous ayez créé un article à l'étape du [scaffolding](/tutorial/getting-dynamic#creating-a-post-editor) un peu plus tôt). Impeccable!
 
 <img src="https://user-images.githubusercontent.com/300/73210519-5380a780-40ff-11ea-8639-968507a79b1f.png" />
 
-> **In the `Success` component, where did `posts` come from?**
+> **Dans le composant `Success`, d'où vient donc `posts`?**
 >
-> Notice in the `QUERY` that the query we're making is `posts`. Whatever the name of this query is, that's the name of the prop that will be available in `Success` with your data. You can alias the name of the variable containing the result of the GraphQL query, and that will be the name of the prop:
+> Remarquez que dans le composant `QUERY`, nous avons nommée notre requête `posts`. Quelque soit le nom de la requête, ce sera le nom de la propriété qui sera transmise au composant `Success` et qui  contiendra vos données. Vous pouvez toutefois créer un alias de la façon suivante:  
 >
 > ```javascript
 > export const QUERY = gql`
@@ -762,9 +761,9 @@ The browser should actually show an array with a number or two (assuming you cre
 > `
 > ```
 >
-> Now `postIds` will be available in `Success` instead of `posts`
+> De cette manière la propriété `postIds` sera transmise à `Success` au lieu de `posts`
 
-In addition to the `id` that was added to the `query` by the generator, let's get the title, body, and createdAt too:
+En plus de l'identifiant `id` qui a été ajouté dans `QUERY` par le générateur, récupérons également le titre, le contenu et la date de création de l'article:
 
 ```javascript{7-9}
 // web/src/components/BlogPostsCell/BlogPostsCell.js
@@ -781,11 +780,11 @@ export const QUERY = gql`
 `
 ```
 
-The page should now show a dump of all the data you created for any blog posts you scaffolded:
+La page devrait désormais afficher un dump de l'ensemble des données pour tous les articles enregistrés:
 
 <img src="https://user-images.githubusercontent.com/300/73210715-abb7a980-40ff-11ea-82d6-61e6bdcd5739.png" />
 
-Now we're in the realm of good ol' React components, so just build out the `Success` component to display the blog post in a nicer format:
+`Success` est ni plus ni moins qu'un bon vieux composant React, vous pouvez donc le modifier simplement pour afficher chaque article dans un format un peu plus sympa et lisible:
 
 ```javascript{4-12}
 // web/src/components/BlogPostsCell/BlogPostsCell.js
@@ -803,25 +802,25 @@ export const Success = ({ posts }) => {
 }
 ```
 
-And just like that we have a blog! It may be the most basic, ugly blog that ever graced the internet, but it's something! (Don't worry, we've got more features to add.)
+Et ce faisant, nous avons maintenant notre blog! Ok, à ce stade c'est encore le plus basique et hideux blog jamais vu sur Internet.. mais c'est déjà quelque chose! (Pas d'inquiétude, nous avons encore un tas de fonctionnalités à ajouter)
 
 <img src="https://user-images.githubusercontent.com/300/73210997-3dbfb200-4100-11ea-847a-602cbf59cb2a.png" />
 
-### Summary
+### Résumé
 
-To sum up, what did we actually do to get this far?
+Pour résumer, qu'avons nous réalisé jusqu'ici ?
 
-1. Generate the homepage
-2. Generate the blog layout
-3. Define the database schema
-4. Run migrations to update the database and create a table
-5. Scaffold a CRUD interface to the database table
-6. Create a cell to load the data and take care of loading/empty/failure/success states
-7. Add the cell to the page
+1. Génération de la page d'accueil
+2. Génération du Layout pour notre blog
+3. Définition du schéma de la base de données
+4. Application d'une migrations pour mettre à jour la base de données et créer une table
+5. Réalisation d'un Scaffold pour créer une interface CRUD sur la table
+6. Création d'une Cell pour charger les donner et gérer les états "loading", "empty", "failure" et enfin "success". 
+7. Ajout de la Cell à notre page d'accueil
 
-This will become a standard lifecycle of new features as you build a Redwood app.
+En réalité, cette différentes étapes sont ni plus ni moins ce qui deviendra votre façon habituelle d'ajouter de nouvelles fonctionnalités dans une application Redwood.
 
-So far, other than a little HTML, we haven't had to do much by hand. And we especially didn't have to write a bunch of plumbing just to move data from one place to another. It makes web development a little more enjoyable, don't you think?
+Jusqu'ici, hormis un peu de code HTML, nous n'avons pas écrit grand chose à la main. En particulier, nous n'avons pratiquement pas eu à écrire de code pour récupérer les données depuis la base. Le développement web s'en trouve facilité et devient même agréable, qu'en pensez-vous?
 
 ## Side Quest: How Redwood Works with Data
 
