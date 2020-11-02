@@ -522,7 +522,7 @@ Nous allons maintenant appliquer cette migration avec cette commande:
 
     yarn rw db up
 
-> **Raccourçi `redwood` **
+> **Raccourçi `redwood`**
 >
 > Désormais, nous utiliserons dans nos commandes la forme courte `rw` à la place de `redwood`.
 
