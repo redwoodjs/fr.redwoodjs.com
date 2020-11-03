@@ -796,7 +796,7 @@ export const Success = ({ posts }) => {
         <h2>{post.title}</h2>
       </header>
       <p>{post.body}</p>
-      <div>Posted at: {post.createdAt}</div>
+      <div>Créé le: {post.createdAt}</div>
     </article>
   ))
 }
@@ -932,15 +932,15 @@ Revenons-en à notre flux de données: Apollo a créé un "resolver" qui, dans n
 
 Si vous utilisez une **Cell** Redwood, vos données seront dès lors disponible dans votre compsant `Success`, prêtes à être affichées comme avec n'importe quel composant React.
 
-## Routing Params
+## Paramètres de Routes
 
-Now that we have our homepage listing all the posts, let's build the "detail" page—a canonical URL that displays a single post. First we'll generate the page and route:
+Maintenant que notre page d'accueil liste l'ensemble des articles de notre blog, il est temps de créer une page présentant le détail d'un article. Commençons par générer une page et sa route associée:
 
     yarn rw g page BlogPost
 
-> Note that we can't call this page simply `Post` because our scaffold already created a page with that name.
+> Remarquez que nous ne pouvons pas nommer cette page `Post` car une autre page homonyme a déjà été crée lors de notre précédente démonstration du scaffolding.
 
-Now let's link the title of the post on the homepage to the detail page (and include the `import` for `Link` and `routes`):
+Pour chaque article listé sur la page d'accueil, ajoutons un lien qui pointe vers notre nouvelle page (sans oublier au passage les imports pour `Link` et `routes`):
 
 ```javascript{3,12}
 // web/src/components/BlogPostsCell/BlogPostsCell.js
@@ -958,13 +958,13 @@ export const Success = ({ posts }) => {
         </h2>
       </header>
       <p>{post.body}</p>
-      <div>Posted at: {post.createdAt}</div>
+      <div>Créé le: {post.createdAt}</div>
     </article>
   ))
 }
 ```
 
-If you click the link on the title of the blog post you should see the boilerplate text on `BlogPostPage`. But what we really need is to specify _which_ post we want to view on this page. It would be nice to be able to specify the ID of the post in the URL with something like `/blog-post/1`. Let's tell the `<Route>` to expect another part of the URL, and when it does, give that part a name that we can reference later:
+Si vous cliquez sur le lien, vous deviez voir s'afficher un peu de texte issu de `BlogPostPage`. Mais ce dont nous avons vraiment besoin, c'est de pouvoir préciser _quel_ article nous souhaitons afficher. Ce que nous cherchons a obtenir en définitive, c'est une URL du type `/blog-post/1`. Pour cela, nous allons dire au routeur que notre url comporte une partie variable supplémentaire:
 
 ```html
 // web/src/Routes.js
@@ -972,9 +972,9 @@ If you click the link on the title of the blog post you should see the boilerpla
 <Route path="/blog-post/{id}" page={BlogPostPage} name="blogPost" />
 ```
 
-Notice the `{id}`. Redwood calls these _route parameters_. They say "whatever value is in this position in the path, let me reference it by the name inside the curly braces."
+Notez l'ajout de `{id}` dans notre route. Redwood nomme ceci un _paramètre de route_. Ces paramètres de route signifie la chose suivante: "quelque soit la valeur à cette position, elle sera référencée par le nom utilisé entre les accolades".
 
-Cool, cool, cool. Now we need to construct a link that has the ID of a post in it:
+Cool, cool, cool. Maintenant, nous devons donc construire un lien qui possède cet identifiant:
 
 ```html
 // web/src/components/BlogPostsCell/BlogPostsCell.js
@@ -982,15 +982,15 @@ Cool, cool, cool. Now we need to construct a link that has the ID of a post in i
 <Link to={routes.blogPost({ id: post.id })}>{post.title}</Link>
 ```
 
-For routes with route parameters, the named route function expects an object where you specify a value for each parameter. If you click on the link now, it will indeed take you to `/blog-post/1` (or `/blog-post/2`, etc, depending on the ID of the post).
+Pour les routes avec paramètres, un objet est attendu pour chaque paramètre. Si vous cliquez sur le lien d'un article, vous constaterez qu'en effet il pointe désormais vers `/blog-post/1` (ou `/blog-post/2`, etc... selon l'article).
 
-### Using the Param
+### Utilisation des Paramètres
 
-Ok, so the ID is in the URL. What do we need next in order to display a specific post? It sounds like we'll be doing some data retrieval from the database, which means we want a cell:
+OK, donc l'identifiant se trouve bien dans l'URL. Et maintenant que fait-t-on pour afficher le bon article? On dirait bien que nous allons devoir récupérer les données depuis la base. Vous l'aurez compris, c'est le bon moment pour utiliser une Cell:
 
     yarn rw g cell BlogPost
 
-And then we'll use that cell in `BlogPostPage` (and while we're at it let's surround the page with the `BlogLayout`):
+Nous allons ensuite utiliser cette Cell dans notre page `BlogPostPage` (et pendant que nous y sommes, nous insèrerons notre page dans notre Layout `BlogLayout`):
 
 ```javascript
 // web/src/pages/BlogPostPage/BlogPostPage.js
@@ -1009,7 +1009,7 @@ const BlogPostPage = () => {
 export default BlogPostPage
 ```
 
-Now over to the cell, we need access to that `{id}` route param so we can look up the ID of the post in the database. Let's update the query to accept a variable (and again change the query name from `blogPost` to just `post`)
+Maintenant, à l'intérieur de notre Cell, nous avons besoin d'accéder à ce paramètre de route `{id}` qui contient l'identifiant de notre article en base de données. Pour ce faire, mettons à jour la requête de façon à ce qu'elle accepte une variable en entrée. Modifions également le nom de la requête `blogPost` en `post`.
 
 ```javascript{4,5,7-9,20,21}
 // web/src/components/BlogPostCell/BlogPostCell.js
@@ -1036,7 +1036,7 @@ export const Success = ({ post }) => {
 }
 ```
 
-Okay, we're getting closer. Still, where will that `$id` come from? Redwood has another trick up its sleeve. Whenever you put a route param in a route, that param is automatically made available to the page that route renders. Which means we can update `BlogPostPage` to look like this:
+Okay, on approche du but! Ceci étant, d'où vient donc ce `$id`? Redwood a plus d'un tour dans son sac. Chaque fois que vous ajoutez un paramètre de route, ce paramètre est automatiquement accessible dans la page qui correspond. Ce qui signifie que vous pouvez modifier la page `BlogPostPage` de la façon suivante:
 
 ```javascript{3,6}
 // web/src/pages/BlogPostPage/BlogPostPage.js
@@ -1050,24 +1050,25 @@ const BlogPostPage = ({ id }) => {
 }
 ```
 
-`id` already exists since we named our route param `{id}`. Thanks Redwood! But how does that `id` end up as the `$id` GraphQL parameter? If you've learned anything about Redwood by now, you should know it's going to take care of that for you! By default, any props you give to a cell will automatically be turned into variables and given to the query. "Say what!" you're saying. It's true!
+`id` existe déjà sans effort supplémentaire puisque nous avons nommé notre paramètre de route `{id}`. Merci qui? Merci Redwood! Mais comment se fait-il que cet `id` finisse par devenir un paramètre GraphQL `$id`? Redwood s'en charge également pour vous! Par défaut, chaque propriété que vous donnez à une Cell devient automatiquement un variable disponible pour une requête GraphQL. Incroyablement simple, et pourtant vrai :)
 
-We can prove it! Try going to the detail page for a post in the browser and—uh oh. Hmm:
+D'ailleurs on peut le prouver! Essayez maintenant d'aller voir un article and — ... uh oh. Hmm:
 
 ![image](https://user-images.githubusercontent.com/300/75820346-096b9100-5d51-11ea-8f6e-53fda78d1ed5.png)
 
-> By the way, this error message you're seeing is thanks to the `Failure` section of our Cell!
+> Au passage le code d'erreur que vous voyez s'afficher provient de la section `Failure` de votre Cell!
 
-If you take a look in the web inspector console you can see the actual error coming from GraphQL:
+Si vous examinez la console de votre navigateur, vous constaterez la présence d'une erreur GraphQL:
 
     [GraphQL error]: Message: Variable "$id" got invalid value "1";
       Expected type Int. Int cannot represent non-integer value: "1",
       Location: [object Object], Path: undefined
 
-It turns out that route params are extracted as strings from the URL, but GraphQL wants an integer for the ID. We could use `parseInt()` to convert it to a number before passing it into `BlogPostCell`, but honestly, we can do better than that!
+Il s'avère que les paramètres de route sont extraits des URL sous la forme de chaînes de caractères, et dans le cas présent GraphQL s'attend à recevoir un identifiant sous la forme d'un entier. Nous pourrions simplement utiliser la fonction javascript `parseInt()` afin de convertir notre paramètre de route vers un entier avant de le passer à `BlogPostCell`. Mais honnêtement, on peut faire bien mieux que ça! 
 
-### Route Param Types
+### Paramètres de Route Typés
 
+Et si vous aviez la possibilité de demander cette conversion directement dans le chemin de la route? Et bien devinez-quoi, vous pouvez! Redwood appelle ça les **paramètres de route typés** ("route param types" en anglais). Et c'est aussi simple que d'ajouter `:Int` à notre paramètre de route:
 What if you could request the conversion right in the route's path? Well, guess what: you can! Introducing **route param types**. It's as easy as adding `:Int` to our existing route param:
 
 ```html
@@ -1076,16 +1077,17 @@ What if you could request the conversion right in the route's path? Well, guess 
 <Route path="/blog-post/{id:Int}" page={BlogPostPage} name="blogPost" />
 ```
 
-Voilà! Not only will this convert the `id` param to a number before passing it to your Page, it will prevent the route from matching unless the `id` path segment consists entirely of digits. If any non-digits are found, the router will keep trying other routes, eventually showing the `NotFoundPage` if no routes match.
+Voilà! Non seulement vous allez convertir sans effort le paramètre `id` en un entier avant de la passer à votre Page, mais en bonus vous faîtes en sorte que la route n'applique que si `id` représente effectivement un entier, c'est à dire une suite de chiffres. Dans le cas contraire, le routeur essaiera d'autres routes. S'il ne s'en trouve aucune à s'appliquer, le routeur affichera la page `NotFoundPage`.
 
-> **What if I want to pass some other prop to the cell that I don't need in the query, but do need in the Success/Loader/etc. components?**
+> **Que se passe-t-il si je veux passer d'autres propriétés à ma Cell dont je n'ai pas besoin dans la requête, mais qui me sont utile dans les composants Success/Loader/etc... ?**
 >
-> All of the props you give to the cell will be automatically available as props in the render components. Only the ones that match the GraphQL variables list will be given to the query. You get the best of both worlds! In our post display above, if you wanted to display some random number along with the post (for some contrived, tutorial-like reason), just pass that prop:
+> Toutes les propriétés que vous donnez à votre Cell seront automatiquement disponibles pour ses composants internes. Seuls ceux qui se se trouvent dans la liste des variables GraphQL seront transmises à la requête. Vous avez ainsi le meilleur des deux mondes! Dans l'affichage de notre article ci-dessus, si vous désirez montrer par exemple un nombre au hasard (pour des raisons evidentes liées à ce didacticiel :D), il vous suffit de passer cette propriété à votre Cell:
 >
 > ```javascript
 > <BlogPostCell id={id} rand={Math.random()} />
 > ```
->
+> 
+> Et ensuite vous la récupérez avec le résulat de la requête ans le composant (et même avec l'identifiant de l'article si vous le souhaitez):
 > And get it, along with the query result (and even the original `id` if you want) in the component:
 >
 > ```javascript
@@ -1094,15 +1096,15 @@ Voilà! Not only will this convert the `id` param to a number before passing it 
 > }
 > ```
 >
-> Thanks again, Redwood!
+> Merci Redwood!
 
 ### Displaying a Blog Post
 
-Now let's display the actual post instead of just dumping the query result. This seems like the perfect place for a good old fashioned component since we're displaying a post on both the home page and this detail page, and it's (currently) the same exact output. Let's Redwood-up a component (I just invented that phrase):
+Maintenant, affichons un véritable article au lieu d'un simple dump du résultat de la requête. Il semble que ce soit l'endroit parfait pour utiliser un bon vieux composant puisque nous affichons les articles de façon identique (pour l'instant) à la fois sur la page d'accueil et sur la page de détail.
 
     yarn rw g component BlogPost
 
-Which creates `web/src/components/BlogPost/BlogPost.js` (and test!) as a super simple React component:
+L'exécution de cette commande créé le composant `BlogPost` dans le fichier `web/src/components/BlogPost/BlogPost.js`, accompagné de son fichier de test: 
 
 ```javascript
 // web/src/components/BlogPost/BlogPost.js
@@ -1119,9 +1121,9 @@ const BlogPost = () => {
 export default BlogPost
 ```
 
-> You may notice we don't have any explicit `import` statements for `React` itself. We (the Redwood dev team) got tired of constantly importing it over and over again in every file so we automatically import it for you!
+> Vous remarquerez peut-être que nous n'avons ici aucun `import` relatif à la librairie `React`. Il s'agit pourtant bien d'un classique composant React. En réalité, nous (la "Redwood dev team") sommes un peu fatigués d'avoir à importer constamment les mêmes fichiers de la même manière... alors nous avons fait en sorte que Redwood le fasse pour nous, et donc pour vous!
 
-Let's take the post display code out of `BlogPostsCell` and put it here instead, taking the `post` in as a prop:
+Supprimons la partie de code qui affiche l'article dans `BlogPostCell`, et mettons la plutôt ici. Ce faisant, passons à notre nouveau composant la propriété `post`:
 
 ```javascript{3,5,7-14}
 // web/src/components/BlogPost/BlogPost.js
@@ -1144,7 +1146,7 @@ const BlogPost = ({ post }) => {
 export default BlogPost
 ```
 
-And update `BlogPostsCell` and `BlogPostCell` to use this new component instead:
+Mettons à jour `BlogPostsCell` et `BlogPostCell` pour utiliser notre composant d'affichage commun:
 
 ```javascript{3,8}
 // web/src/components/BlogPostsCell/BlogPostsCell.js
@@ -1170,19 +1172,19 @@ export const Success = ({ post }) => {
 }
 ```
 
-And there we go! We should be able to move back and forth between the homepage and the detail page.
+Et nous y sommes! Nous devrions maintenant pouvoir aller et venir à notre guise entre la page d'accueil et les articles.
 
-> If you like what you've been seeing from the router, you can dive deeper into the [Redwood Router](/docs/redwood-router) guide.
+> Si vous appréciez ce que vous venez de voir sur le routeur, vous pouvez en apprendre plus dans le [guide](/docs/redwood-router) qui lui est consacré. 
 
-### Summary
+### Résumé
 
-Let's summarize:
+Un petit état des lieux de ce que nous avons réalisé:
 
-1. We created a new page to show a single post (the "detail" page).
-2. We added a route to handle the `id` of the post and turn it into a route param.
-3. We created a cell to fetch and display the post.
-4. Redwood made the world a better place by making that `id` available to us at several key junctions in our code and even turning it into a number automatically.
-5. We turned the actual post display into a standard React component and used it in both the homepage and new detail page.
+1. Création d'une nouvelle page pour afficher un article
+2. Ajout d'une route prenant en char l'identifiant `id` d'un article sous la forme d'un paramètre de route
+3. Création d'une Cell permettant de récupérer et afficher un article
+4. Constat de la capacité de Redwood à vous mettre de bonne humeur en vous donnant accès à `id` là où vous en avez besoin tout en le convertissant au format numérique à la volée
+6. Transformation de l'affichage d'un article en un composant React classique pouvant être partagé à plusieurs endroits dans l'interface (en l'espèce dans la page d'accueil et la page de détail)
 
 ## Everyone's Favorite Thing to Build: Forms
 
