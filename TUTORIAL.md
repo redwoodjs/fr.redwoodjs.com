@@ -822,21 +822,21 @@ En réalité, cette différentes étapes sont ni plus ni moins ce qui deviendra 
 
 Jusqu'ici, hormis un peu de code HTML, nous n'avons pas écrit grand chose à la main. En particulier, nous n'avons pratiquement pas eu à écrire de code pour récupérer les données depuis la base. Le développement web s'en trouve facilité et devient même agréable, qu'en pensez-vous?
 
-## Side Quest: How Redwood Works with Data
+## Quête secondaire: Fonctionnement de Redwood avec les Données
 
-Redwood likes GraphQL. We think it's the API of the future. Our GraphQL implementation is built with [Apollo](https://www.apollographql.com/). Here's how a typical GraphQL query works its way through your app:
+Redwood apprécie GraphQL. Nous pensons qu'il s'agit de l'API pour l'avenir. Notre implémentation de GraphQL is construite avec [Apollo](https://www.apollographql.com/). Voici comment une requête GraphQL classique fonctionne dans votre application: 
 
 ![Redwood Data Flow](https://user-images.githubusercontent.com/300/75402679-50bdd180-58ba-11ea-92c9-bb5a5f4da659.png)
 
-The front-end uses [Apollo Client](https://www.apollographql.com/docs/react/) to create a GraphQL payload sent to [Apollo Server](https://www.apollographql.com/docs/apollo-server/) running in a serverless AWS Lambda function in the cloud.
+La partie frontend de l'application s'appuie sur [Apollo Client](https://www.apollographql.com/docs/react/) pour créer une requête GraphQL. Celle-ci est ensuite envoyée à [Apollo Server](https://www.apollographql.com/docs/apollo-server/) qui s'exécute dans une fonction lambda AWS serverless.  
 
-The `*.sdl.js` files in `api/src/graphql` define the GraphQL [Object](https://www.apollographql.com/docs/tutorial/schema/#object-types), [Query](https://www.apollographql.com/docs/tutorial/schema/#the-query-type) and [Mutation](https://www.apollographql.com/docs/tutorial/schema/#the-mutation-type) types and thus the interface of your API.
+Les fichiers `*.sdl.js` qui se trouvent dans le répertoire `api/src/graphql` définissent les types GraphQL [Object](https://www.apollographql.com/docs/tutorial/schema/#object-types), [Query](https://www.apollographql.com/docs/tutorial/schema/#the-query-type) et [Mutation](https://www.apollographql.com/docs/tutorial/schema/#the-mutation-type) et donc l'interface de votre API.
 
-Normally you would write a [resolver map](https://www.apollographql.com/docs/tutorial/resolvers/#what-is-a-resolver) that contains all your resolvers and tells Apollo how to map them to your SDL. But putting business logic directly in the resolver map would result in a very big file and horrible reusability, so you'd be well advised to extract all the logic out into a library of functions, import them, and call them from the resolver map, remembering to pass all the arguments through. Ugh, that's a lot of effort and boilerplate, and still doesn't result in very good reusabilty.
+En principe, vous devriez écrire une "[resolver map](https://www.apollographql.com/docs/tutorial/resolvers/#what-is-a-resolver)" qui contiendrait l'ensemble de vos "resolvers" de façon à ce qu'Apollo sache comment les brancher à vos fichiers SDL. Cependant, inscrire votre logique métier directement dans votre "resolver map" aurait pour conséquence la création d'un énorme fichier ne favorisant pas la réutilisation. Vous pourriez également extraire toute cette logique dans une librairie de fonctions que vous importeriez et appelleriez depuis votre "resolver map", en ayant toutefois à vous rappeller de passer tous les arguments nécessaires. Humm.. c'est beaucoup d'efforts pour au final une masse de code de toute façon peu réutilisable.
 
-Redwood has a better way! Remember the `api/src/services` directory? Redwood will automatically import and map resolvers from the corresponding **services** file onto your SDL. At the same time, it allows you to write those resolvers in a way that makes them easy to call as regular functions from other resolvers or services. That's a lot of awesomeness to contemplate, so let's show an example.
+Redwood s'y prend autrement! Voos rappellez-vous le répertoire `api/src/services`? Redwood va automatiquement importer et brancher vos "resolvers" depuis les **services** vers vos fichiers SDL. Dans le même temps, Redwood vous permet d'écrire vos "resolvers" de façon à ce qu'ils soient facilement appellés comme de simples fonctions depuis d'autres "resolvers" ou d'autres services. Cela fait pas mal de choses étonnantes à intégrer, il est temps de passer à un exemple.
 
-Consider the following SDL javascript snippet:
+Observez donc le morceau de code SDL javascript suivant :
 
 ```javascript
 // api/src/graphql/posts.sdl.js
@@ -872,7 +872,7 @@ export const schema = gql`
 `
 ```
 
-In this example, Redwood will look in `api/src/services/posts/posts.js` for the following five resolvers:
+A partir de ce fichier SDL, Redwood va aller chercher les cinq "resolvers" suivants dans `api/src/services/posts/posts.js` :
 
 - `posts()`
 - `post({id})`
@@ -880,7 +880,7 @@ In this example, Redwood will look in `api/src/services/posts/posts.js` for the 
 - `updatePost({id, input})`
 - `deletePost({id})`
 
-To implement these, simply export them from the services file. They will usually get your data from a database, but they can do anything you want, as long as they return the proper types that Apollo expects based on what you defined in `posts.sdl.js`.
+Pour implémenter ces cinq "resolvers", il vous suffit de les exporter depuis vos fichiers services. Vos resolvers vont habituellement récupérer les données depuis une base de données, mais en réalité ils peuvent faire ce que vous souhaitez du moment qu'ils retournent le type de données qu'Apollo s'attend à recevoir comme défini dans `posts.sdl.js`. 
 
 ```javascript
 // api/src/services/posts/posts.js
@@ -916,21 +916,21 @@ export const deletePost = ({ id }) => {
 }
 ```
 
-> Apollo assumes these functions return promises, which `db` (an instance of `PrismaClient`) does. Apollo waits for them to resolve before responding with your query results, so you don't need to worry about `async`/`await` or mess with callbacks yourself.
+> Apollo suppose que ces fonctions retournent des "promises", ce que `db` fait parfaitement. `db` est une instance de `PrismaClient`. Apollo attend sagement que ces promises s'achèvent avant de répondre avec le résultat de vos requêtes. De cette manière, vous n'avez pas à gérer vous-même les `async`/`await`, ou autres callbacks. 
 
-You may be wondering why we call these implementation files "services". While this example blog doesn't get complex enough to show it off, services are intended to be an abstraction **above** single database tables. For example, a more complex app may have a "billing" service that uses both a `transactions` table and a `subscriptions` table. Some of the functionality of this service may be exposed via GraphQL, but only as much as you like.
+Vous êtes parfaitement fondé à vous interroger sur la raison pour laquelle nous appelons ces fichiers des "services". Bien que le blog que nous construisons ensemble ne soit pas assez complexe pour le montrer, les services sont conçus pour être une abstraction qui couvre **plus** qu'une simple table de la base de données. Une application plus avancée pourrait par exemple avoir un service nommé "facturation" qui reposerait à fois sur les tables `transactions` et `souscriptions`. Certaines des fonctionnalités de ce service pourraient être exposées via GraphQL, mais pas forcément toutes. 
 
-You don't have to make each function in your service available via GraphQL—leave it out of your `Query` and `Mutation` types and it won't exist as far as GraphQL is concerned. But you could still use it yourself—services are just Javascript functions so you can use them anywhere you'd like:
+Vous n'avez pas besoin d'exposer chaque fonction de votre service via GraphQL. Si vous ne les déclarez pas dans dans vos types `Query` ou `Mutation`, ils n'existerons tout simplement pas pour GraphQL. Mais vous pourrez toujours les utiliser vous-même. Les services ne sont ni plus ni moins que des fonctions javascript que vous pouvez utiliser où bon vous semble :
 
-- From another service
-- In a custom lambda function
-- From a completely separate, custom API
+- Depuis un autre service
+- Dans une autre fonction lambda créée par vous-même
+- Depuis une autre API, complètement séparée
 
-By dividing your app into well-defined services and providing an API for those services (both for internal use **and** for GraphQL), you will naturally start to enforce separation of concerns and (in all likelihood) increase the maintainability of your codebase.
+En organisant votre application autour de services bien définis, et en proposant une API pour chacun de ces services (à la fois pour un usage interne, **et** pour GraphQL), vous contribuerez naturellement à respecter la règle dite de ["separation of concerns"](https://fr.wikipedia.org/wiki/S%C3%A9paration_des_pr%C3%A9occupations) (SoC). Selon toute probabilité, cela vous permettra de favoriser la maintenance de votre code dans le temps.
 
-Back to our data flow: Apollo has called the resolver which, in our case, retrieved data from the database. Apollo digs into the object and returns only the key/values that were asked for in the GraphQL query. It then packages up the response in a GraphQL payload and returns it to the browser.
+Revenons-en à notre flux de données: Apollo a créé un "resolver" qui, dans notre cas, récupère les données depuis une base de données. Apollo reconstruit l'objet en ne retournant que les couples clé/valeur demandés dans la requête GraphQL. Enfin, Apollo emballe la réponse au format GraphQL et la retourne au navigateur.
 
-If you're using a Redwood **cell** then this data will be available to you in your `Success` component ready to be looped through and/or displayed like any other React component.
+Si vous utilisez une **Cell** Redwood, vos données seront dès lors disponible dans votre compsant `Success`, prêtes à être affichées comme avec n'importe quel composant React.
 
 ## Routing Params
 
