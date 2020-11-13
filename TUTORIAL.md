@@ -1098,7 +1098,7 @@ Voilà! Non seulement vous allez convertir sans effort le paramètre `id` en un 
 >
 > Merci Redwood!
 
-### Displaying a Blog Post
+### Afficher un article
 
 Maintenant, affichons un véritable article au lieu d'un simple dump du résultat de la requête. Il semble que ce soit l'endroit parfait pour utiliser un bon vieux composant puisque nous affichons les articles de façon identique (pour l'instant) à la fois sur la page d'accueil et sur la page de détail.
 
