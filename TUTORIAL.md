@@ -1864,7 +1864,7 @@ Le bac à sable GraphQL est une excellente manière d'expérimenter avec votre A
 
 ### Créer un Contact
 
-Our GraphQL mutation is ready to go on the backend so all that's left is to invoke it on the frontend. Everything related to our form is in `ContactPage` so that's the logical place to put the mutation call. First we define the mutation as a constant that we call later (this can be defined outside of the component itself, right after the `import` statements):
+Notre mutation GraphQL est prête pour la partie backend, tout ce qu'il reste à faire c'est l'invoquer depuis la partie frontend. Tout ce qui à trait à notre formulaire se trouve dans `ContactPage`, c'est donc l'endroit logique pour y mettre l'appel à notre nouvelle mutation. D'abord nous définissons cette mutation comme une constante que nous appellerons plus tard (ceci peut être défini en dehors du composant lui-même, juste après les lignes d'imports):
 
 ```javascript
 // web/src/pages/ContactPage/ContactPage.js
@@ -1878,9 +1878,9 @@ const CREATE_CONTACT = gql`
 `
 ```
 
-We reference the `createContact` mutation we defined in the Contacts SDL passing it an `input` object which will contain the actual name, email and message fields.
+Nous référençons ainsi la mutation `createContact` définie auparavant dans le fichier SDL des contacts, tout en lui passant en argument un objet `input` contenant la valeur des champs `name`, `email` et `message`.
 
-Next we'll call the `useMutation` hook provided by Apollo which will allow us to execute the mutation when we're ready (don't forget the `import` statement):
+Après quoi, nous appelons le 'hook' `useMutation` fourni par Appolo, ce qui nous permet d'exécuter la mutation lorsque le moment est venu (n'oubliez pas les imports comme à chaque fois):
 
 ```javascript{11,15}
 // web/src/pages/ContactPage/ContactPage.js
@@ -1906,8 +1906,7 @@ const ContactPage = () => {
   return (...)
 }
 ```
-
-`create` is a function that invokes the mutation and takes an object with a `variables` key, containing another object with an `input` key. As an example, we could call it like:
+`create` est une fonction qui invoque la mutation et prend en paramètre un objet contenant un clef `variables`. Cette dernière contient à son tour une clef `input`. Par exemple, nous pourrions l'appeler également de cette manière:
 
 ```javascript
 create({
@@ -1921,9 +1920,9 @@ create({
 })
 ```
 
-If you'll recall `<Form>` gives us all of the fields in a nice object where the key is the name of the field, which means the `data` object we're receiving in `onSubmit` is already in the proper format that we need for the `input`!
+Si votre méémoire est bonne, vous vous souvenez sans doute que la balise `<Form>` nous donne accès à l'ensemble des champs du formulaire avec un objet bien pratique dans lequel chaque clef se trouve être le nom du champ. Celà signifie donc que l'objet `data`que nous recevons dans `onSubmit` est déjà dans le format adapté pour `input`!  
 
-Now we can update the `onSubmit` function to invoke the mutation with the data it receives:
+Maintenant nous pouvons mettre à jour la fonction `onSubmit` pour invoquer la mutation avec les données qu'elle reçoit:
 
 ```javascript{7}
 // web/src/pages/ContactPage/ContactPage.js
@@ -1940,21 +1939,21 @@ const ContactPage = () => {
 }
 ```
 
-Try filling out the form and submitting—you should have a new Contact in the database! You can verify that with the GraphQL Playground if you were so inclined:
+Essayez-donc de remplir le formulaire et de l'envoyer. Vous devriez obtenir un nouveau contact en base de données! Vous pouvez vérifier ceci avec l'outil bac à sable de GraphQL:
 
 ![image](https://user-images.githubusercontent.com/300/76250632-ed5d6900-6202-11ea-94ce-bd88e3a11ade.png)
 
-### Improving the Contact Form
+### Améliorer le formulaire de contact
 
-Our contact form works but it has a couple of issues at the moment:
+Notre formulaire de contact fonctionne, mais il subsiste quelques problèmes:
 
-- Clicking the submit button multiple times will result in multiple submits
-- The user has no idea if their submission was successful
-- If an error was to occur on the server, we have no way of notifying the user
+- Cliquer sur le bouton d'enregistrement plusieurs fois à pour conséquence d'envoyer le formulaire également plusieurs fois
+- L'utilisateur ne sait pas si l'envoi a bien été pris en compte
+- Si une erreur devait se produire côté serveur, nous n'avons aucun moyen d'en informer l'utilisateur
 
-Let's address these issues.
+Essayons d'y apporter une solution.
 
-The `useMutation` hook returns a couple more elements along with the function to invoke it. We can destructure these as the second element in the array that's returned. The two we care about are `loading` and `error`:
+Le 'hook' `useMutation` retourne quelques autres éléments en plus de la fonction permettant de l'invoquer. Nous pouvons déstructurer ceux-ci (`loading` et `error`) de la façon suivante:
 
 ```javascript{4}
 // web/src/pages/ContactPage/ContactPage.js
@@ -1971,7 +1970,7 @@ const ContactPage = () => {
 }
 ```
 
-Now we know if the database call is still in progress by looking at `loading`. An easy fix for our multiple submit issue would be to disable the submit button if the response is still in progress. We can set the `disabled` attribute on the "Save" button to the value of `loading`:
+Ce faisant, nous savons si un appel à la base est toujours en cours en utilisant la valeur de `loading`. Une façon simple de résoudre le problème des soumissions multiples du même formulaire est de rendre inactif le bouton d'envoi tant que la réponse n'a pas été reçue. Nous pouvons faire celà en liant l'attribut `disabled` du bouton "save" à la valeur contanue dans `loading`:
 
 ```javascript{5}
 // web/src/pages/ContactPage/ContactPage.js
@@ -1983,13 +1982,13 @@ return (
 )
 ```
 
-It may be hard to see a difference in development because the submit is so fast, but you could enable network throttling via the Network tab Chrome's Web Inspector to simulate a slow connection:
+Il peut être difficile de voir une différence en phase de développement car l'envoi est très rapide. Mais vous pouvez néanmoins activer un outil bien pratique dans le navigateur Chrome afin de simuler une connection lente:
 
 <img src="https://user-images.githubusercontent.com/300/71037869-6dc56f80-20d5-11ea-8b26-3dadb8a1ed86.png" />
 
-You'll see that the "Save" button become disabled for a second or two while waiting for the response.
+Vous verrez alors que le bouton "Save" devient inactif pendant une seconde ou deux en attendant la réponse.
 
-Next, let's use Redwood's `Flash` system to let the user know their submission was successful. `useMutation` accepts an options object as a second argument. One of the options is a callback function, `onCompleted`, that will be invoked when the mutation successfully completes. We'll use that callback to add a message for the `Flash` component to display. Add the `Flash` component to the page and use the `timeout` prop to schedule the message's dismissal. (You can read the full documentation about Redwood's Flash system [here](https://redwoodjs.com/docs/flash-messaging-bus).)
+Maintenant, utilisons le système dit de `Flash` proposé par Redwood afin d'informer l'utilisateur que son envoi à bien été traité. `useMutation` accepte un second paramètre optionnel contenant des options. Une de ces options est une fonction callback appelée `onCompleted` qui sera invoquée lorsque la mutation sera achevée avec succès. Nous allons donc utiliser cette fonction pour ajouter un message qui sera affiché par un composant `Flash`. Ajoutez donc le composant `Flash` a votre page et utilisez sa propriété `timeout` pour définir le temps d'affichage. (Vous pouvez lire la documentation à propos du système de Flash proposé par Redwood [ici](https://redwoodjs.com/docs/flash-messaging-bus))
 
 ```javascript{4,10,13-17,24}
 // web/src/pages/ContactPage/ContactPage.js
@@ -2019,17 +2018,17 @@ const ContactPage = () => {
       // ...
 ```
 
-### Displaying Server Errors
+### Afficher les erreurs serveur
 
-Next we'll inform the user of any server errors. So far we've only notified the user of _client_ errors: a field was missing or formatted incorrectly. But if we have server-side constraints in place `<Form>` can't know about those, but we still need to let the user know something went wrong.
+Nous allons maintenant informer l'utilisateur des éventuelles erreurs côté serveur. Jusqu'ici nous n'avons notifié les utilisateurs quie des erreurs _côté client_ lorsqu'un champ était manquant ou formaté incorrectement. Mais si nous avons également des contraintes côté serveur que le composant `<Form>` ignore, nous devons tout de même pouvoir en informer l'utilisateur.
 
-We have email validation on the client, but any good developer knows [_never trust the client_](https://www.codebyamir.com/blog/never-trust-data-from-the-browser). Let's add the email validation on the API as well to be sure no bad data gets into our database, even if someone somehow bypassed our client-side validation.
+Ainsi, nous avons une validateur de l'email côté client, mais tout bon développeur web sait qu'il ne faut [_jamais faire confiance au client_](https://www.codebyamir.com/blog/never-trust-data-from-the-browser). Ajoutons une validation de l'email côté serveur de façon à être certain qu'aucune donnée erronée ne soit ajoutée dans la base, et ce même si un utilisateur parvenait à contourner le fonctionnement de l'application côté client.
 
-> Why don't we need server-side validation for the existence of name, email and message? Because the database is doing that for us. Remember the `String!` in our SDL definition? That adds a constraint in the database that the field cannot be `null`. If a `null` was to get all the way down to the database it would reject the insert/update and GraphQL would throw an error back to us on the client.
+> Pourquoi n'avons-nous pas besoin de validation côté serveur pour s'assurer que les champs name, email et message sont bien remplis? Car la base de données le fait pour nous. Vous rappellez-vous `String!` dans notre fichier SDL? Celà ajoute une contrainte en base de données de telle façon que ce champ ne puisse être `null`. Une valeur `null` serait rejetée par la base et GraphQL renverrait une erreur à la partie client. 
 >
-> There's no `Email!` datatype so we'll need to validate that on our own.
+> Cependant, il n'existe pas de type `Email!`, raison pour laquelle nous devons assurer la validation nous même 
 
-We talked about business logic belonging in our services files and this is a perfect example. Let's add a `validate` function to our `contacts` service:
+Nous avons déjà parlé de code métier et du fait que ce type de code a vocation à se trouver dans nos fichiers services. Ceci en est un exemple parfait. Ajoutons une fonction `validate` à notre service `contacts`:
 
 ```javascript{3,7-15,22}
 // api/src/services/contacts/contacts.js
@@ -2058,9 +2057,9 @@ export const createContact = ({ input }) => {
 }
 ```
 
-So when `createContact` is called it will first validate the inputs and only if no errors are thrown will it continue to actually create the record in the database.
+Ainsi, lorsque `createContact` est invoquée, la fonction commence par valider le contenu des champs du formulaire. Puis, et seulement s'il n'y a aucune erreur, l'enregistrement sera créé en base de données.
 
-We already capture any existing error in the `error` constant that we got from `useMutation`, so we _could_ manually display an error box on the page somewhere containing those errors, maybe at the top of the form:
+Nous capturons déjà toutes les erreurs dans la constante `error` que nous obtenons grâce au 'hook' `useMutation`. C'est pourquoi nous avons la possibilité d'afficher ces erreurs sur la page, par exemple au dessus du formulaire:
 
 ```html{4-9}
 // web/src/pages/ContactPage/ContactPage.js
@@ -2075,7 +2074,7 @@ We already capture any existing error in the `error` constant that we got from `
   // ...
 ```
 
-> If you need to handle your errors manually, you can do this:
+> Si vous avez besoin de manipuler l'objet contenant les erreurs, vous pouvez procéder ainsi:
 >
 > ```javascript{3-8}
 > // web/src/pages/ContactPage/ContactPage.js
@@ -2089,7 +2088,7 @@ We already capture any existing error in the `error` constant that we got from `
 > }
 > ```
 
-To get a server error to fire, let's remove the email format validation so that the client-side error isn't shown:
+Afin de tester ceci, provoquons une erreur en retirant temporairement la validation côté client de l'adresse email:
 
 ```html
 // web/src/pages/ContactPage/ContactPage.js
@@ -2103,15 +2102,15 @@ To get a server error to fire, let's remove the email format validation so that 
 />
 ```
 
-Now try filling out the form with an invalid email address:
+Maintenant, essayons de remplir le formulaire avec un adresse invalide:
 
 <img src="https://user-images.githubusercontent.com/300/80259406-5aee1900-863a-11ea-9b82-def3a4f3e162.png" />
 
-It ain't pretty, but it works. Seeing a "GraphQL error" is not ideal, and it would be nice if the field itself was highlighted like it was when the inline validation was in place...
+Celà fonctionne, même si l'affichage reste à améliorer. Voir apparaître une erreur GraphQL n'est pas idéal. Il serait plus sympa de faire en sorte que ce soit le champ concerné qui soit marqué d'une erreur...
 
-Remember when we said that `<Form>` had one more trick up its sleeve? Here it comes!
+Vous rapellez-vous lorsque nous avons dit que `<Form>` avait plus d'un tour dans son sac? Voyons donc ça!
 
-Remove the inline error display we just added (`{ error && ...}`) and replace it with `<FormError>`, passing the `error` constant we got from `useMutation` and a little bit of styling to `wrapperStyle` (don't forget the `import`). We'll also pass `error` to `<Form>` so it can setup a context:
+Supprimez l'affichage de l'erreur tel que nous venons de l'ajouter (`{ error && ...}`) , et remplacez-le avec `<FormError>` tout en passant en argument la constante `error` que nous récupérons depuis `useMutation`. Ajoutez également quelques ééléments de style à `wrapperStyle`, sans oublier les `import` associés.
 
 ```javascript{10,18-22}
 // web/src/pages/ContactPage/ContactPage.js
@@ -2141,26 +2140,26 @@ return (
 )
 ```
 
-Now submit a message with an invalid email address:
+Désormais, l'envoi du formulaire avec une adresse invalide donne ceci:
 
 <img src="https://user-images.githubusercontent.com/300/80259553-c46e2780-863a-11ea-9441-54a9112b9ce5.png" />
 
-We get that error message at the top saying something went wrong in plain english _and_ the actual field is highlighted for us, just like the inline validation! The message at the top may be overkill for such a short form, but it can be key if a form is multiple screens long; the user gets a summary of what went wrong all in one place and they don't have to resort to hunting through a long form looking for red boxes. You don't have to use that message box at the top, though; just remove `<FormError>` and the field will still be highlighted as expected.
+Nous obtenons un message d'erreur en haut du formulaire _et_ les champs concernés sont mis en avant! Le message en haut du formulaire peut apparaître un peu lourd pour un si petit formulaire, mais vous contaterez son utilité lorsque vous construirez des formulaires de plusieurs pages; de cette façon l'utilisateur peut voir imméédiatement ce qui ne fonctionne pas sans avoir à parcourir l'ensemble du formulaire. Si vous ne souhaitez pas utiliser cet affichage, il vous suffit de supprimer `<FormError>`, les champs seront toujours mis en avant.
 
-> `<FormError>` has several styling options which are attached to different parts of the message:
+> `<FormError>` a plusieurs options pour adapter le style d'affichage
 >
-> - `wrapperStyle` / `wrapperClassName`: the container for the entire message
-> - `titleStyle` / `titleClassName`: the "Can't create new contact" title
-> - `listStyle` / `listClassName`: the `<ul>` that contains the list of errors
-> - `listItemStyle` / `listItemClassName`: each individual `<li>` around each error
+> - `wrapperStyle` / `wrapperClassName`: le conteneur pour l'ensemble du message
+> - `titleStyle` / `titleClassName`: le titre "Can't create new contact"
+> - `listStyle` / `listClassName`: le `<ul>` qui contient la liste des erreurs
+> - `listItemStyle` / `listItemClassName`: chaque `<li>` contenant chaque erreur
 
 ### One more thing...
 
-Since we're not redirecting after the form submits we should at least clear out the form fields. This requires we get access to a `reset()` function that's part of `react-hook-form` but we don't have access to it when using the simplest usage of `<Form>` (like we're currently using).
+Puisque nous ne redirigeons pas l'utilisateur une fois le formulaire envoyé, nous devrions au moins remettre le formulaire à zéro. Pour celà nous devons utiliser la fonction `reset()` proposée par `react-hook-form`, mais nous n'y avons pas accès compte tenu de la manière dont nous utilisons `<Form>`.
 
-`react-hook-form` has a hook called `useForm()` which is normally called for us within `<Form>`. In order to reset the form we need to invoke that hook ourselves. But the functionality that `useForm()` provides still needs to be used in `Form`. Here's how we do that.
+`react-hook-form` possède un 'hook' appelé `useForm()` qui est en principe invoquéé pour nous à l'intérieur de `<Form>`. De façon à réinitialiser le formulaire nous devons invoquer ce 'hook' manuellement. Voici comment faire:
 
-First we'll import `useForm`:
+Commençons par importer `useForm`:
 
 ```javascript
 // web/src/pages/ContactPage/ContactPage.js
@@ -2168,7 +2167,7 @@ First we'll import `useForm`:
 import { useForm } from 'react-hook-form'
 ```
 
-And now call it inside of our component:
+Puis invoquons ce 'hook' dans notre composant:
 
 ```javascript{4}
 // web/src/pages/ContactPage/ContactPage.js
@@ -2178,7 +2177,7 @@ const ContactPage = () => {
   //...
 ```
 
-Finally we'll tell `<Form>` to use the `formMethods` we just instantiated instead of doing it itself:
+Enfin, donnons pour instruction explicite à `<Form>` d'utiliser `formMethods`, au lieu de le laisser le faire lui-même:
 
 ```javascript{10}
 // web/src/pages/ContactPage/ContactPage.js
@@ -2195,7 +2194,7 @@ return (
     // ...
 ```
 
-Now we can call `reset()` on `formMethods` after the success message is added to the Flash system:
+Maintenant nous pouvons invoquer manuellement `reset()` depuis `formMethods()` juste après que le message de confirmation soit affiché:
 
 ```javascript
 // web/src/pages/ContactPage/ContactPage.js
@@ -2208,11 +2207,11 @@ const [create, { loading, error }] = useMutation(CREATE_CONTACT, {
 })
 ```
 
-<img alt="Screenshot of Contact form with Flash success message" src="https://user-images.githubusercontent.com/44448047/93649232-1be9a700-f9d1-11ea-821c-7a69c626f50c.png">
+<img alt="Capture écran du formulaire de Contact avec message de confirmation Flash" src="https://user-images.githubusercontent.com/44448047/93649232-1be9a700-f9d1-11ea-821c-7a69c626f50c.png">
 
-> You can put the email validation back into the `<TextField>` now, but you should leave the server validation in place, just in case.
+> Vous pouvez maintenant réactiver la validation email côté client sur le `<TextField>`, tout en conservant la validation côté serveur.
 
-Here's the final `ContactPage.js` page:
+Voici le contenu final de la page `ContactPage.js`: 
 
 ```javascript
 import {
@@ -2308,15 +2307,15 @@ const ContactPage = () => {
 export default ContactPage
 ```
 
-That's it! [React Hook Form](https://react-hook-form.com/) provides a bunch of [functionality](https://react-hook-form.com/api) that `<Form>` doesn't expose. When you want to get to that functionality you can: just call `useForm()` yourself but make sure to pass the returned object (we called it `formMethods`) as a prop to `<Form>` so that the validation and other functionality keeps working.
+C'est terminé! [React Hook Form](https://react-hook-form.com/) propose pas mal de fonctionalités que `<Form>` n'expose pas. Lorsque vous souhaitez les utiliser, appelez juste le 'hook' `useForm()` vous-même, en vous assurant de bien passer en argument l'objet retourné (`formMethods`) comme propriété de `<Form>` de façon à ce que la validation et les autres fonctionalités puissent continuer à fonctionner. 
 
-> You may have noticed that the onBlur form validation stopped working once you started calling `useForm()` yourself. That's because Redwood calls `useForm()` behind the scenes and automaticaly passes it the `validation` prop that you gave to `<Form>`. Redwood is no longer calling `useForm()` for you so if you need some options passed you need to do it manually:
+> Vous avez peut-être remarqué que la validation onBlur a cessé de fonctionner lorsque vous avez commencé à appeler `userForm()` par vous-même. Ceci s'explique car Redwood invoque `userForm()` et lui passe automatiquement en argument ce que vous avez passé à `<Form>`. Puisque Redwood n'appelle plus automatiquement `useForm()` à votre place, vous devez de faire manuellement:
 >
 > ```javascript
 > const formMethods = useForm({ mode: 'onBlur' })
 > ```
 
-The public site is looking pretty good. How about the administrative features that let us create and edit posts? We should move them to some kind of admin section and put them behind a login so that random users poking around at URLs can't create ads for discount pharmaceuticals.
+La partie publique du site a bon aspect. Que faire maintenant de la partie administration qui nous permet de créer et éditer les articles? Nous devrions la déplacer dans une partie réservée et la placer derrière un login, de façon à ce des utilisateurs mal intentionnés ne puissent pas créer en chaîne, par exemple, des publicités pour l'achat de médicaments en ligne...
 
 ## Administration
 
