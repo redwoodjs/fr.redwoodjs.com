@@ -2337,27 +2337,27 @@ Allez à http://localhost:8910/admin/posts et notre page générée par scaffold
 
 Que pensez-vous de mettre enfin en ligne tout ce que nous avons réalisé ?
 
-## Deployment
+## Déploiement
 
-Part 4 of the video tutorial picks up here:
+La partie 4 de ce didacticiel en vidéo se trouve ici:
 
 <div class="relative pb-9/16">
   <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/UpD3HyuZkvY?rel=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; modestbranding; showinfo=0" allowfullscreen></iframe>
 </div>
 
-The whole reason we started building Redwood was to make full-stack web apps easier to build and deploy on the Jamstack. You've seen what building a Redwood app is like, how about we try deploying one?
+La raison principale pour laquelle nous avons mis au point Redwood était de permettre aux développeurs de construire des applications web _full-stack_ plus facilement tout en adhérant à la philosophie Jamstack. Vous avez pu voir à quoi ressemble l'élaboration d'une application Redwood. Que pensez-vous de voir comment on la déploit?
 
-We've only got one change to make to the codebase to get it ready for deployment and we've got a generator to do it for us:
+Il n'y a qu'une modification à faire pour que notre application soit prête à être déployée, et bien entendu nous avons un générateur pour ça:
 
 ```terminal
 yarn rw g deploy netlify
 ```
 
-This creates a file at `/netlify.toml` which contains the commands and file paths that Netlify needs to know about to build a Redwood app.
+L'exécution de cette commande va créer un fichier `/netlify.toml` contenant les commandes et les chemins de fichiers dont Netlify a besoin afin de construire l'application.
 
-Before we continue, make sure your app is fully committed and pushed to GitHub, GitLab, or Bitbucket. We're going to link Netlify directly to our git repo so that a simple push to `main` will re-deploy our site. If you haven't worked on the Jamstack yet you're in for a pleasant surprise!
+Avant que nous ne poursuivions, assurez-vous que tous les commits soient faits et bien envoyés sur GitHub, GitLab or BitBucket. En effet, nous allons lier Netlify à notre dépôt Git de façon à ce tout nouveau push sur la branch `main` permette de re-déployer le site. Si vous n'avez jamais travaillé auparavant avec une application Jamstack, préparez-vous à une sympatique expérience!
 
-> **NOTE:** Git initializes with `master`. Don't know how to rename `master` to `main`? If you're pushing to GitHub, you can follow these steps:
+> **NOTE:** Git utilise par défaut une branche `master`. Vous ne savez pas comment renommer `master` en `main`? Si vous utilisez GitHub, vous pouvez suivre ces étapes:
 >
 > ```plaintext{4,6}
 > git init
@@ -2368,102 +2368,99 @@ Before we continue, make sure your app is fully committed and pushed to GitHub, 
 > git push -u origin main
 > ```
 
-### Vercel (alternative deploy target)
+### Vercel (cible de déploiement alternative)
 
-Redwood officially supports multiple hosting providers (with even more on the way). Although this Tutorial continues with a focus on Netlify deployment and authentication with Netlify Identity, you can deploy to [Vercel](https://vercel.com/redwoodjs-core) instead. To do this, first complete "The Database" section below, but then use this [Vercel deploy walkthrough](https://redwoodjs.com/docs/deploy#redwood-deploy-configuration) in place of the following "Netlify" instructions. **Note**: Netlify Identity, used in upcoming "Authentication" section, won’t work on the Vercel platform.
+Redwood supporte officiellement plusieurs fournisseurs d'hébergement (et d'autres sont en cours d'ajout). Bien que ce didacticiel se poursuive en s'appuyant sur Netlify pour le déploiement et l'authentification, il vous est possible de déployer sur [Vercel](https://vercel.com/redwoodjs-core). Pour cela, commencer par achever la section suivante ("La Base de Données"), mais utilisez ce [guide de déploiement Vercel](https://redwoodjs.com/docs/deploy#redwood-deploy-configuration) à la place des instructions dédiées à Netlify. **Note**: Netlify Identity, used in the upcoming "Authentication" section, won't work on the Vercel platform.  
 
-### The Database
+### La Base de Données
 
-We'll need a database somewhere on the internet to store our data. We've been using SQLite locally, but that's a file-based store meant for single-user. SQLite isn't really suited for the kind of connection and concurrency requirements a production website will require. For this part of this tutorial, we will use Postgres. (Prisma currently supports SQLite, Postgres and MySQL.) Don't worry if you aren't familiar with Postgres, Prisma will do all the heavy lifting. We just need to get a database available to the outside world so it can be accessed by our app.
+Nous avons besoin d'une base de données quelque part sur Internet afin d'enregistrer nos données. Nous avons utilisé SQLite pendant la phase de développement, mais il s'agit d'un outil pensé pour être utilisé par un seul utilisateur. SQLite n'est pas vraiment adapté pour le type de connections concurrentes qu'une application requiert lorsqu'elle entre en production. Pour cette partie du didacticiel, nous utiliserons Postgres. (Prisma supporte à ce jour SQLite, Postgres et MySQL). Ne vous inquiétez pas si vous n'êtes pas familier de Postgres, Prisma va se charger de tout ça. Tout ce dont nous avons besoin c'est une base de données qui soit accessible depuis Internet, de telle manière que notre application puisse s'y connecter.
 
-First we'll let Prisma know that we intend to use Postgres in addition to SQLite so it will build client libraries for both. Update the `provider` entry in `schema.prisma`:
+Tout d'abord, nous allons informer Prisma que nous souhaitons utiliser Postgres en plkus de SQLite, de telle manière que Prisma va construire un client pour ces deux bases de données. Mettez à jour l'entrée `provider` dans `schema.prisma`:
 
 ```javascript
 provider = ["sqlite", "postgresql"]
 ```
 
-If you'd like to develop locally with Postgres, see the
-[Local Postgres Setup](/docs/local-postgres-setup) guide.
+Si vous souhaitez développer en local avec Postgres, [consultez le guide](/docs/local-postgres-setup). 
 
-> For now, you need to set up your own database, but we are working with various infrastructure providers to make this process simpler and more Jamstacky. Stay tuned for improvements in that regard!
+> Pour l'instant, vous avez besoin de créer votre propre base de données, mais nous travaillons avec différents fournisseurs d'infrastructure pour mettre un place un processus plus simple et plus en phase avec la Jamstack. Plus d'informations sont à venir sur ce point!
 
-There are several hosting providers where you can quickly start up a Postgres instance:
+Il existe différents fournisseurs d'hébergement qui vous permettent de créer rapidement une base de données Postgres:
 
 - [Heroku](https://www.heroku.com/postgres)
 - [Digital Ocean](https://www.digitalocean.com/products/managed-databases)
 - [AWS](https://aws.amazon.com/rds/postgresql/)
 
-We're going to go with Heroku for now because it's a) free and b) easier to get started from scratch than AWS.
+Nous allons ici utiliser Heroku car 1) c'est gratuit, 2) plus facile à manipuler qu'AWS pour un néophyte.
 
-Head over to [Heroku](https://signup.heroku.com/) and create an account or log in. Then click that **Create a new app** button:
+Rendez-vous sur le site d'[Heroku](https://signup.heroku.com/), créez un nouveau compte ou identifiez-vous. Cliquez ensuite sur le boutton **create new app**.
 
 <img alt="Screen Shot 2020-02-03 at 3 22 36 PM" src="https://user-images.githubusercontent.com/300/73703866-438c3900-46a6-11ea-9a90-bdab2fed8bff.png">
 
-Give it a name like "redwoodblog" if it's available. Go to the **Resources** tab and then click **Find more add-ons** in the **Add-ons** section:
+Donnez lui un nom comme "redwoodblog". Puis allez sur l'onglet **Ressources** et cliquez sur le bouton **Find more add-ons** dans la section **Add-ons**: 
 
 <img alt="Screen Shot 2020-02-03 at 3 23 25 PM" src="https://user-images.githubusercontent.com/300/73703877-4e46ce00-46a6-11ea-87c0-079346f4d9b3.png">
 
-And scroll down to **Heroku Postgres**:
+Déplacez-vous dans la page jusqu'à faire apparaître **Heroku Postgres**:
 
 <img alt="Screen Shot 2020-02-03 at 3 23 48 PM" src="https://user-images.githubusercontent.com/300/73703883-556ddc00-46a6-11ea-8777-ee27d2202e0e.png">
 
-Click that and then on the detail page that comes up click the **Install Heroku Postgres** button that top right. On the next screen tell it you want to connect it to the app you just created, then click **Provision add-on**:
+Une page de détail apparaît. Cliquez sur **Install Heroku Postgres** dans le coin supérieur droit. Sur l'écran suivant, précisez que vous souhaitez connecter la base à l'application que vous venez de créer. Cliquez enfin sur **Provision Add-on**.
 
 <img alt="Screen Shot 2020-02-03 at 3 24 15 PM" src="https://user-images.githubusercontent.com/300/73703930-64548e80-46a6-11ea-9f1b-e06a183834f4.png">
 
-You'll be returned to your app's detail page. You should be on the **Resources** tab and see the Heroku Postgres add-on ready to go:
+Vous êtes alors redirigé sur la page présentant les détails de votre application. Vous devriez alors pouvoir aller sur l'onglet **Resources** et constater que l'add-on Heroku Postgres et prêt à être utilisé:
 
 <img alt="Screen Shot 2020-02-03 at 3 24 43 PM" src="https://user-images.githubusercontent.com/300/73703951-6ae30600-46a6-11ea-8d9b-a900b7af2ac5.png">
 
-Click the **Heroku Postgres** link to get to the detail page, then the **Settings** tab and finally the **View Credentials...** button. We did all the steps above so that we could copy the URI listed at the bottom:
+Cliquez sur le lien Heroku Postgres pour vous rendre sur la page de détail, puis sur l'onglet **Settings** et enfin cliquez sur le boutton **View Credentials...**. Copiez l'URI située en bas de la page.
 
 <img alt="Screen Shot 2020-02-03 at 3 25 31 PM" src="https://user-images.githubusercontent.com/300/73703956-70405080-46a6-11ea-81f2-bed99ca4c4cc.png">
 
-It will be really long and scroll off the right side of the page so make sure you copy the whole thing!
+Cette ligne est particulièrement longue, assurez-vous que vous avez bien sélectionné et copié l'intégralité de la ligne!
 
 ### Netlify
 
-Now we're going to [create a Netlify account](https://app.netlify.com/signup) if you don't have one already. Once you've signed up and verified your email done just click the **New site from Git** button at the upper right:
+Maintenant, si vous n'en avez pas déjà un, créez un [compte Netlify](https://app.netlify.com/signup). Ceci étant fait, cliquez simplement sur le boutton **New site from Git** situé en haut à droite: 
 
 <img src="https://user-images.githubusercontent.com/300/73697486-85f84a80-4693-11ea-922f-0f134a3e9031.png" />
 
-Now just authorize Netlify to connect to your git hosting provider and find your repo. When the deploy settings come up you can leave everything as the defaults and click **Deploy site**.
+Donnez l'autorisation à Netlify de se connecter à votre fournisseur d'hébergement Git, et sélectionnez le dépôt de votre application. Laissez les paramètres par défaut et cliquez sur **Deploy site**.
 
-Netlify will start building your app (click the **Deploying your site** link to watch the logs) and it will say "Site is live", but nothing will work. Why? We haven't told it where to find our database yet.
+Netlify va alors construire votre application (cliquez sur **Deploying your site** pour prendre connaissance des logs) puis va dire "Site is live",... et rien ne va fonctionner :D Pourquoi? Et pardi, car nous n'avons pas précisé où se trouve notre base de données!
 
-Go back to the main site page and then to **Settings** at the top, and then **Build & Deploy** > **Environment**. Click **Edit Variables** and this is where we'll paste the database connection URI we got from Heroku (note the **Key** is "DATABASE_URL"). After pasting the value, append `?connection_limit=1` to the end. The URI will have the following format: `postgres://<user>:<pass>@<url>/<db>?connection_limit=1`.
+Retournez sur la page principale de Netlify, puis rendez-vous dans **Settings**, puis dans **Build & Deploy** > **Environment**. Cliquez sur **Edit variables**. C'est à cet endroit que nous allons coller l'URI de connection que nous avions copié depuis Heroku (notez que la valeur de **Key** est "DATABASE_URL"). Après avoir collé la valeur, ajoutez `?connection_limit=1` à la fin d'URI. Le format final de l'URI est donc:  `postgres://<user>:<pass>@<url>/<db>?connection_limit=1`.
 
 ![Adding ENV var](https://user-images.githubusercontent.com/300/83188236-3e834780-a0e4-11ea-8cfa-790c2e335a92.png)
 
-> When configuring a database, you'll want to append `?connection_limit=1` to the URI. This is [recommended by Prisma](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/deployment#recommended-connection-limit) when working with relational databases in a Serverless context.
+> Lorsque vous configurez la base de données, vous ajouterez de préférence `?connection_limit=1` à l'URI. Il s'agit d'une [recommandation pour l'utilisation de Prisma](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/deployment#recommended-connection-limit) dans le cadre d'une utilisation Serverless.
 
-Make sure to click the **Save** button. Now go over to the **Deploys** tab in the top nav and open the **Trigger deploy** dropdown on the right, then finally choose **Deploy site**:
+Assurez-vous de cliquer sur le boutton **Save**. Maintenant rendez-vous sur l'onglet **Deploys**, ouvrez le champ de sélection **Trigger deploy** sur la droite et choisissez **Deploy site**: 
 
 ![Trigger deploy](https://user-images.githubusercontent.com/300/83187760-835aae80-a0e3-11ea-9733-ff54969bba1f.png)
 
-With a little luck (and SCIENCE) it will complete successfully! You can click the **Preview** button at the top of the deploy log page, or go back and click the URL of your Netlify site towards the top:
+Avec un peu de chance (et de science!!), tout va fonctionner correctement! Vous pouvez cliquer sur le bouton **Preview** en haut de page avec les logs, ou revenir à la page précédente et cliquer sur l'URL de déploiement de votre site située en haut de l'écran:
 
 ![Netlify URL](https://user-images.githubusercontent.com/300/83187909-bef57880-a0e3-11ea-97dc-e557248acd3a.png)
 
-Did it work? If you see "Empty" under the About and Contact links then it did! Yay! You're seeing "Empty" because you don't have any posts in your brand new production database so head to `/admin/posts` and create a couple, then go back to the homepage to see them.
+Est-ce que ça fonctionne? Si vous voyez "Empty" sous les liens _About_ et _Contact_, c'est que ça marche! Cool! "Empty" signifie simplement que vous n'avez aucun article enregistré dans votre base de données. Allez simplement sur `/admin/posts` pour en créer quelques-un, puis revenez sur la page d'accueil de votre application pour les voir s'afficher.
 
-> If you view a deploy via the **Preview** button notice that the URL contains a hash of the latest commit. Netlify will create one of these for every push to `main` but will only ever show this exact commit, so if you deploy again and refresh you won't see any changes. The real URL for your site (the one you get from your site's homepage in Netlify) will show the latest deploy. See [branch deploys](#branch-deploys) below for more info.
+> Si vous regardez le déploiement via le bouton **Preview**, remarquez que l'URL contient un hash du dernier commit. Netlify va en créer un à chaque nouveau push sur la branche `main` mais ne montrera que ce commit. Donc si vous déployez à nouveau en executant un refresh, vous ne verrez aucune modification. L'URL de déploiement de votre site (celle que vous obtenez depuis la page d'accueil de Netlify) affichera toujours le dernier déploiement. Consultez la section suivante "[Déploiement de Branche](#branch-deploys)" pour plus d'informations.
 
-If the deploy failed, check the log output in Netlify and see if you can make sense of the error. If the deploy was successful but the site doesn't come up, try opening the web inspector and look for errors. Are you sure you pasted the entire Postgres connection string correctly? If you're really, really stuck head over to the [Redwood Community](https://community.redwoodjs.com) and ask for help.
+Si votre déploiement n'a pas fonctionné, consultez le log dans Netlify et voyez si vous comprenez l'erreur qui s'affiche. Si votre déploiement s'esst correctement effectué mais que le site ne s'affiche pas, essayez d'ouvrir les outils de développement de votre navigateur afin de voir si des erreurs s'affichent. Assurez-vous également de bien avoir copié _en totalité_ l'URI de connection Postgres depuis Heroku. Si véritablement vous ne parvenez pas à trouver d'où vient l'erreur, demandez-donc de l'aide à la [communauté Redwood](https://community.redwoodjs.com).  
 
-### Branch Deploys
+### Déploiements de Branche
 
-Another neat feature of Netlify is _Branch Deploys_. When you create a branch and push it up to your repo, Netlify will build that branch at a unique URL so that you can test your changes, leaving the main site alone. Once your branch is merged to `main` then a deploy at your main site will run and your changes will show to the world. To enable Branch Deploys go to **Settings** > **Continuous Deployment** and under the **Deploy contexts** section click **Edit settings** and change **Branch deploys** to "All". You can also enable _Deploy previews_ which will create them for any pull requests against your repo.
+Une autre fonctionnalité bien pratique de Netlify est appelée _branch deploys_. Lorsque vous créez une branche et effectuez un push sur votre dépôt Git, Netlify va contruire votre application depuis cette branche et vous retourner une URL unique de telle manière que vous puissiez tester vos modifications tout en laissant intacte le déploiement effectué depuis la branche `main`. Une fois que votre branche alternative a été _merged_ dans la branche `main`, une nouvelle construction de votre application sera effectuée en prenant en compte les modifications apportées par la branche alternative. Pour activer le déploiement de branches, allez dans **Settings**>**Continuous Deployment** puis sous la section **Deploy context** cliquez sur **Edit Settings** et modifiez **Branch Deploys** to "All". Vous pouvez également activer _Deploy previews_ qui va créer une préview pour toute _pull-request_ effectuée sur votre dépôt.
 
 ![Netlify settings screenshot](https://user-images.githubusercontent.com/30793/90886476-c1016780-e3b2-11ea-851a-3014257484fd.png)
 
-> You also have the ability to "lock" the `main` branch so that deploys do not automatically occur on every push—you need to manually tell Netlify to deploy the latest, either by going to the site or using the [Netlify CLI](https://cli.netlify.com/).
+> Vous avez également la possibilité de "vérouiller" la branche `main` de telle manière que chaque push ne déclanche pas automatiquement une reconstruction de l'application. Vous devez alors demander à Netlify manuellement de déployer la dernière version présente sur le dépôt, soit en vous rendant sur le site, soit en utilisant [la CLI Netlify](https://cli.netlify.com/).
 
-### A Note About DB Connections
+### Une remarque à propos des connections aux bases de données
 
-In this tutorial, your lambda functions will be connecting directly to the Postgres database. Because Postgres has a limited number of concurrent connections it will accept, this does not scale very well. The proper solution is to put a connection pooling service in front of Postgres and connect to that from your lambda functions. To learn how to do that, see the [Connection Pooling](/docs/connection-pooling) guide.
-
-We are working on making this process much easier, but keep it in mind before you deploy a Redwood app to production and announce it to the world.
+Dans ce didacticiel, vos fonctions lambda vont se connecter directement à la base Postgres. Dans la mesure où Postgres à un nombre limité de connections concurrentes possibles, son utilisation peut devenir problématique lorsque le nombre d'utlisateurs croît énormément. La bonne solution est de mettre en place un service de "connection pooling" devant Postgres et y connecter vos fonctions lambda. Pour apprendre comment faire ça, consulter le [guide associé](https://www.redwoodjs.com/docs/connection-pooling). 
 
 ## Authentication
 
