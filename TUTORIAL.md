@@ -2462,59 +2462,56 @@ Une autre fonctionnalité bien pratique de Netlify est appelée _branch deploys_
 
 Dans ce didacticiel, vos fonctions lambda vont se connecter directement à la base Postgres. Dans la mesure où Postgres à un nombre limité de connections concurrentes possibles, son utilisation peut devenir problématique lorsque le nombre d'utlisateurs croît énormément. La bonne solution est de mettre en place un service de "connection pooling" devant Postgres et y connecter vos fonctions lambda. Pour apprendre comment faire ça, consulter le [guide associé](https://www.redwoodjs.com/docs/connection-pooling). 
 
-## Authentication
+## Authentification
 
-"Authentication" is a blanket term for all of the stuff that goes into making sure that a user, often identified with an email address and password, is allowed to access something. Authentication can be [famously fickle](https://www.rdegges.com/2017/authentication-still-sucks/) to do right both from a technical standpoint and developer happiness standpoint.
+"Authentification" est un mot-valise pour tout ce qui se rapporte au fait de s'assurer que l'utilisateur, souvent identifié à l'aide d'un couple email/mot de passe, est autorisé à accéder à quelque chose. L'authentification peut être parfois [délicate à mettre en oeuvre](https://www.rdegges.com/2017/authentication-still-sucks/) techniquement et vous causer de sérieux maux de tête. 
 
-But you know Redwood has your back! Login isn't something we have to write from scratch—it's a solved problem and is one less thing we should have to worry about. Today Redwood includes integrations to:
+Heureusement, Redwood est là pour vous! L'authentification n'est pas une chose qu'il vous faut écrire en partant de zero, c'est un problème identifié et résolu qui ne devrait au contraire vous causer que peu de soucis. A ce jour, Redwood s'intégre avec :
 
 - [Auth0](https://auth0.com/)
 - [Netlify Identity](https://docs.netlify.com/visitor-access/identity/)
 
-We're going to demo a Netlify Identity integration in this tutorial since we're already deployed there and it's very easy to add to a Netlify site.
+Puisque nous avons déjà commecé à déployer notre application sur Netlify, nous allons ici découvrir ensemble Netlify Identity.
 
-> There are two terms which contain a lot of letters, starting with an "A" and ending in "ation" (which means you could rhyme them if you wanted to) that become involved in most discussions about login:
+> Il existe deux termes contenant beaucoup de lettres, commençant par "A" et finissant par "ation" qu'il bien faut distinguer:
 >
-> * Authentication
-> * Authorization
+> * Authentification (__Authentication__ en anglais)
+> * Autorisation (__Authorization__ en anglais)
 >
-> Here is how Redwood uses these terms:
+> Voici comment Redwood utilise ces termes:
 >
-> * **Authentication** deals with determining whether someone is who they say they are, generally by "logging in" with an email and password, or a third party OAuth provider like Google.
-> * **Authorization** is whether a user (who has usually already been authenticated) is allowed to do something they want to do. This generally involves some combination of roles and permission checking before allowing access to a URL or feature of your site.
+> * **Authentification** se rapporte au fait de savoir dans quelle mesure une personne est bien celle qu'elle prétend être. Celà prend généralement la forme d'un formulaire de Login avec un email et un mot de passe, ou un fournisseurs OAuth tiers comme Google.
+> * **Autorisation** se rapporte au fait de savoir si un utilisateur (qui en général s'est déjà authentifié) est autorisé à effectuer ou non une action. Celà recouvre en général une combinaison de roles et de permissions qui sont évaluées avant de donner ou refuser l'accès à une URL du site.
 >
-> This section of the tutorial focuses on **Authentication** only. We're currently working on integrating a simple and flexible role-based authorization system and once we release it we'll update the tutorial to include a walkthrough!
+> Cette section du didacticiel se concentre en particulier sur l'**authentification**. Nous travaillons actuellement à inclure un système simple et flexible de rôles. Une fois ceci réalisé, nous mettrons à jour ce didacticiel! 
 
 ### Netlify Identity Setup
 
-Assuming you've been following along, you already have a Netlify account and a site set up. If you'd be so kind, head to the **Identity** tab and click the **Enable Identity** button:
+En supposant que vous avez complété toutes les étapes précédentes, vous disposez déjà d'un compte Netlify ainsi que d'une application fonctionelle. Dans ce cas, rendez-vous sur l'onglet **Identity** et cliquez sur le boutton **Enable Identity**:
 
 ![Netlify Identity screenshot](https://user-images.githubusercontent.com/300/82271191-f5850380-992b-11ea-8061-cb5f601fa50f.png)
 
-When the screen refreshes click the **Invite users** button and enter a real email address (they're going to send a confirmation link to it):
+Lorsque l'écran s'affiche, cliquez sur le boutton **Invite users** et entrez une adresse email. Netlify enverra à cette adresse un lien de confirmation:
 
 ![Netlify invite user screenshot](https://user-images.githubusercontent.com/300/82271302-439a0700-992c-11ea-9d6d-004adef3a385.png)
 
-We'll need to get that email confirmation link soon, but for now let's set up our app for authentication.
+Nous aurons besoin de cet email de confirmation très bientôt, mais pour le moment continuons la mise en place de l'authentification.
 
-### Authentication Generation
+### Génération de l'Authentification
 
-There are a couple of places we need to add some code for authentication and lucky for us Redwood can do it automatically with a generator:
+Quelques modifications doivent être effectuées sur le code pour mettre en place l'authentification. Fort heureusement, Redwood peut le faire pour nous car un générateur est prévu pour ça:
 
 ```terminal
 yarn rw g auth netlify
 ```
+Cette commande permet d'ajouter un fichier et d'en modifier quelques autres.
 
-The generator adds one file and modifies a couple others.
-
-> Don't see any changes?
+> Vous ne remarquez aucun changement?
 >
-> For this to work you must be on version `0.7.0` or greater of Redwood. If you
-> don't see any file changes, try
-> [upgrading](/reference/command-line-interface#upgrade) your Redwood packages
-> with `yarn rw upgrade`.
+> Afin que celà fonctionne, vous devez utiliser au minimum la version `0.7.0` de Redwood. 
+> Le cas échéant, [mettez à jour Redwood](/reference/command-line-interface#upgrade) avec `yarn rw upgrade`.
 
-Take a look at the newly created `api/src/lib/auth.js` (usage comments omitted):
+Observez le contenu du fichier `api/src/lib/auth.js` qui vient d'être créé (les commentaires ont été supprimé pour plus de clarté):
 
 ```javascript
 // api/src/lib/auth.js
@@ -2526,24 +2523,26 @@ export const getCurrentUser = async (decoded, { token, type }) => {
 }
 
 export const requireAuth = () => {
+We'll hook up both the web and api sides below to make sure a user is only doing things they're allowed to do.
+
   if (!context.currentUser) {
     throw new AuthenticationError("You don't have permission to do that.")
   }
 }
 ```
 
-By default the authentication system will return only the data that the third-party auth handler knows about (that's what's inside the `jwt` object above). For Netlify Identity that's an email address, an optional name and optional array of roles. Usually you'll have your own concept of a user in your local database. You can modify `getCurrentUser` to return that user, rather than the details that the auth system stores. The comments at the top of the file give one example of how you could look up a user based on their email address. We also provide a simple implementation for requiring that a user be authenticated when trying to access a service: `requireAuth()`. It will throw an error that GraphQL knows what to do with if a non-authenticated person tries to get to something they shouldn't.
+Par défaut, le système d'authentification va retourner uniquement les données connues par le fournisseur tiers (c'est ce qui se trouve dans l'objet `jwt`). Dans le cas de Netlify Identity, il s'agit d'une adresse email, d'un nom (optionnel), et d'un tableau de roles (optionnel également). En général, vous disposez de votre propre modélisation de ce qu'est un utilisateur dans votre base de données. Vous pouvez modifier `getCurrentUser` de façon à retourner cet utilisateur plutôt que les détails enregistrés par le fournisseur d'authentification. Les commentaires présents en haut du fichier vous montrent un exemple permettant de rechercher un utilisateur à partir de l'adresse email récupérée. Redwood fournit également par défaut la fonction `requireAuth()`, une implémentation simple pour s'assurer qu'un utilisateur est bien authentifié afin d'accéder à un service. Le cas échéant, une erreur sera lancée de telle façon que GraphQL sache quoi faire si un utilisateur non authentifié essaye de faire quelque chose qu'il ne devrait pas pourvoir effectuer.
 
-The files that were modified by the generator are:
+Les fichiers qui ont été modifés par le générateur sont les suivants:
 
-* `web/src/index.js`—wraps the router in `<AuthProvider>` which makes the routes themselves authentication aware, and gives us access to a `useAuth()` hook that returns several functions for logging users in and out, checking their current logged-inness, and more.
-* `api/src/functions/graphql.js`—makes `currentUser` available to the api side so that you can check whether a user is allowed to do something on the backend. If you add an implementation to `getCurrentUser()` in `api/src/lib/auth.js` then that is what will be returned by `currentUser`, otherwise it will return just the details the auth system has for the user. If they're not logged in at all then `currentUser` will be `null`.
+* `web/src/index.js`— Entoure le routeur au sein du composant `<AuthProvider>`, ce qui fait que les routes elle-mêmes sont soumises à authentification. Cela donne également accès au "hook" `useAuth()` qui expose quelques fonctions permettant à l'utilisateur de se connecter, se déconnecter, verifier le statut courant, etc.. 
+* `api/src/functions/graphql.js`— Rend disponible `currentUser` pour la partie API de l'application, de telle façon que vous puissez verifier si un utilisateur est autorisé ou non à faire quelque chose. Si vous ajoutez une implémentation à `getCurrentUser()` dans `api/src/lib/auth.js`, alors ce sera ce qui sera retourné par `currentUser`, dans le cas contraire `currentUser` contiendra `null`.
 
-We'll hook up both the web and api sides below to make sure a user is only doing things they're allowed to do.
+Nous allons connecter les côtés Web et API ci-dessous pour nous assurer qu'un utilisateur ne fait que les choses qu'il est autorisé à faire.
 
-### API Authentication
+### Authentification côté API
 
-First let's lock down the API so we can be sure that only authorized users can create, update and delete a Post. Open up the Post service and let's add a check:
+Commençons par verrouiller l'API afin que nous puissions être sûrs que seuls les utilisateurs autorisés peuvent créer, mettre à jour et supprimer une publication. Ouvrez le service Post et ajoutons une vérification:
 
 ```javascript{4,17,24,32}
 // api/src/services/posts/posts.js
@@ -2588,15 +2587,15 @@ export const Post = {
 }
 ```
 
-Now try creating, editing or deleting a post from our admin pages. Nothing happens! Should we show some kind of friendly error message? In this case, probably not—we're going to lockdown the admin pages altogether so they won't be accessible by a browser. The only way someone would be able to trigger these errors in the API is if they tried to access the GraphQL endpoint directly, without going through our UI. The API is already returning an error message (open the Web Inspector in your browser and try that create/edit/delete again) so we are covered.
+Essayez maintenant de créer, de modifier ou de supprimer un article de nos pages d'administration. Il ne se passe rien! Devrions-nous afficher une sorte de message d'erreur convivial? Dans ce cas, probablement pas - nous allons verrouiller complètement les pages d'administration afin qu'elles ne soient pas accessibles par un navigateur. La seule façon pour quelqu'un de déclencher ces erreurs dans l'API est de tenter d'accéder directement au point de terminaison GraphQL, sans passer par notre interface utilisateur. L'API renvoie déjà un message d'erreur (ouvrez l'inspecteur Web dans votre navigateur et essayez à nouveau de créer / modifier / supprimer), nous sommes donc couverts.
 
-> Note that we're putting the authentication checks in the service and not checking in the GraphQL interface (in the SDL files).
+> Notez que nous mettons les vérifications d'authentification dans le service et non la vérification dans l'interface GraphQL (dans les fichiers SDL).
 >
-> Redwood created the concept of **services** as containers for your business logic which can be used by other parts of your application besides the GraphQL API. By putting authentication checks here you can be sure that any other code that tries to create/update/delete a post will fall under the same authentication checks. In fact, Apollo (the GraphQL library Redwood uses) [agrees with us](https://www.apollographql.com/docs/apollo-server/security/authentication/#authorization-in-data-models)!
+> Redwood a créé le concept de **services** en tant que conteneurs pour votre logique métier qui peuvent être utilisés par d'autres parties de votre application en plus de l'API GraphQL. En plaçant des contrôles d'authentification ici, vous pouvez être sûr que tout autre code qui tente de créer / mettre à jour / supprimer une publication tombera sous les mêmes contrôles d'authentification. En fait, Apollo (la bibliothèque GraphQL utilisée par Redwood) [est d'accord avec nous](https://www.apollographql.com/docs/apollo-server/security/authentication/#authorization-in-data-models)!
 
-### Web Authentication
+### Authentification côté Web
 
-Now we'll restrict access to the admin pages completely unless you're logged in. The first step will be to denote which routes will require that you be logged in. Enter the `<Private>` tag:
+Nous allons maintenant restreindre complètement l'accès aux pages d'administration, sauf si vous êtes connecté. La première étape consistera à indiquer les itinéraires qui nécessiteront que vous soyez connecté. Pour ce faire, ajouter la balise `<Private>`:
 
 ```javascript{3,12,16}
 // web/src/Routes.js
@@ -2624,11 +2623,11 @@ const Routes = () => {
 export default Routes
 ```
 
-Surround the routes you want to be behind authentication and optionally add the `unauthenticated` attribute that lists the name of another route to redirect to if the user is not logged in. In this case we'll go back to the homepage.
+Entourez les routes que vous voulez protéger par l'authentification, et ajoutez éventuellement l'attribut `unauthenticated` qui répertorie le nom d'une autre route vers laquelle rediriger si l'utilisateur n'est pas connecté. Dans ce cas, nous reviendrons à la page d'accueil.
 
-Try that in your browser. If you hit http://localhost:8910/admin/posts you should immediately go back to the homepage.
+Essayez cela dans votre navigateur. Si vous cliquez sur http://localhost:8910/admin/posts, vous devez immédiatement revenir à la page d'accueil.
 
-Now all that's left to do is let the user actually log in! If you've built authentication before then you know this part is usually a drag, but Redwood makes it a walk in the park. Most of the plumbing was handled by the auth generator, so we get to focus on the parts the user actually sees. First, let's add a **Login** link that will trigger a modal from the [Netlify Identity widget](https://github.com/netlify/netlify-identity-widget). Let's assume we want this on all of the public pages, so we'll put it in the `BlogLayout`:
+Il ne reste plus qu'à laisser l'utilisateur se connecter! Si vous avez déjà créé une authentification, vous savez que cette partie est généralement un frein, mais Redwood en fait une gentille promenade au parc. La majeure partie de la plomberie a été gérée par le générateur d'authentification, nous pouvons donc nous concentrer sur les parties que l'utilisateur voit réellement. Tout d'abord, ajoutons un lien **Login** qui déclenchera une fenêtre modale à partir du [widget Netlify Identity](https://github.com/netlify/netlify-identity-widget). Supposons que nous souhaitons obtenir cela sur toutes les pages publiques, nous allons donc le mettre dans le `BlogLayout`:
 
 ```javascript{4,7,22-26}
 // web/src/layouts/BlogLayout/BlogLayout.js
@@ -2667,27 +2666,27 @@ const BlogLayout = ({ children }) => {
 export default BlogLayout
 ```
 
-Try clicking the login link:
+Essayez de cliquer sur le lien Login:
 
 ![Netlify Identity Widget modal](https://user-images.githubusercontent.com/300/82387730-aa7ef500-99ec-11ea-9a40-b52b383f99f0.png)
 
-We need to let the widget know the URL of our site so it knows where to go to get user data and confirm they're able to log in. Back over to Netlify, you can get that from the Identity tab:
+Nous devons informer le widget de l'URL de notre site afin qu'il sache où aller pour obtenir les données des utilisateurs et confirmer qu'ils peuvent se connecter. De retour sur Netlify, vous pouvez l'obtenir à partir de l'onglet **Identity**:
 
 ![Netlify site URL](https://user-images.githubusercontent.com/300/82387937-28430080-99ed-11ea-91b7-a4e10f14aa83.png)
 
-You need the protocol and domain, not the rest of the path. Paste that into the modal and click that **Set site's URL** button. The modal should reload and now show a real login box:
+Vous avez besoin du protocole et du domaine, pas du reste du chemin. Collez-le dans la fenêtre modale et cliquez sur le bouton **Set site's URL**. La fenêtre modale devrait se recharger et afficher maintenant une vraie boîte de connection:
 
 ![Netlify identity widget login](https://user-images.githubusercontent.com/300/82388116-97205980-99ed-11ea-8fb4-13436ee8e746.png)
 
-Before we can log in, remember that confirmation email from Netlify? Go find that and click the **Accept the invite** link. That will bring you to your site live in production, where nothing will happen. But if you look at the URL it will end in something like `#invite_token=6gFSXhugtHCXO5Whlc5V`. Copy that (including the `#`) and appened it to your localhost URL: http://localhost:8910/#invite_token=6gFSXhugtHCXO5Whlc5Vg Hit Enter, then go back into the URL and hit Enter again to get it to actually reload the page. Now the modal will show **Complete your signup** and give you the ability to set your password:
+Avant de pouvoir nous connecter, vous rappelez-vous cet e-mail de confirmation de Netlify? Allez le trouver et cliquez sur le lien **Accept the invite** . Cela vous amènera à votre site en production, où rien ne se passera. Mais si vous regardez l'URL, elle se terminera par quelque chose comme `#invite_token=6gFSXhugtHCXO5Whlc5V`. Copiez-le (y compris le `#`) et ajoutez-le à votre URL localhost: http://localhost:8910/#invite_token=6gFSXhugtHCXO5Whlc5Vg. Appuyez sur Entrée, puis revenez dans l'URL et appuyez à nouveau sur Entrée pour qu'il recharge la page. Maintenant, la fenêtre modale affichera **Complete your signup** et vous donnera la possibilité de définir votre mot de passe:
 
 ![Netlify identity set password](https://user-images.githubusercontent.com/300/82388369-54ab4c80-99ee-11ea-920e-9df10ee0cac2.png)
 
-Once you do that the modal should update and say that you're logged in! It worked! Click the X in the upper right to close the modal.
+Une fois que vous faites cela, la fenêtre modale devrait se mettre à jour et dire que vous êtes connecté! Ça a marché! Cliquez sur le X en haut à droite pour fermer la fenêtre modale.
 
-> We know that invite acceptance flow is less than ideal. The good news is that once you deploy your site again with authentication, future invites will work automatically—the link will go to production which will now have the code needed to launch the modal and let you accept the invite.
+> Nous savons que ce workfow d'acceptation des invitations est loin d'être idéal. La bonne nouvelle est que, lorsque déployez à nouveau votre site avec authentification, les futures invitations fonctionneront automatiquement - le lien ira à la production qui aura désormais le code nécessaire pour lancer le modal et vous permettra d'accepter l'invitation.
 
-We've got no indication on our actual site that we're logged in, however. How about changing the **Log In** button to be **Log Out** when you're authenticated:
+Cependant, nous n'avons actuellement aucune indication sur notre site que nous sommes connectés. Pourquoi ne pas changer le bouton **Log In** en **Log Out** lorsque vous êtes authentifié:
 
 ```javascript{7,23-24}
 // web/src/layouts/BlogLayout/BlogLayout.js
@@ -2726,13 +2725,13 @@ const BlogLayout = ({ children }) => {
 export default BlogLayout
 ```
 
-`useAuth()` provides a couple more helpers for us, in this case `isAuthenticated` which will return `true` or `false` based on your login status, and `logOut()` which will log the user out. Now clicking **Log Out** should log you out and change the link to **Log In** which you can click to open the modal and log back in again.
+`useAuth ()` nous apporte quelques aides supplémentaires, dans le cas présent `isAuthenticated` retournera` true` ou `false` en fonction de votre statut de connexion, et` logOut ()` déconnectera l'utilisateur. Cliquez maintenant sur **Log Out**  pour vous déconnecter et changer le lien en **Log In** sur lequel vous pouvez cliquer pour ouvrir la fenêtre modale et vous reconnecter.
 
-When you *are* logged in, you should be able to access the admin pages again: http://localhost:8910/admin/posts
+Lorsque vous *êtes* connecté, vous devriez pouvoir accéder à nouveau aux pages d'administration: http://localhost:8910/admin/posts
 
-> If you start working on another Redwood app that uses Netlify Identity you'll need to manually clear out your Local Storage which is where the site URL is stored that you entered the first time you saw the modal. Local Storage is tied to your domain and port, which by default will be the same for any Redwood app when developing locally. You can clear your Local Storage in Chrome by going to the Web Inspector, the **Application** tab, and then on the left open up **Local Storage** and click on http://localhost:8910. You'll see the keys stored on the right and can delete them all.
+> Si vous commencez à travailler sur une autre application Redwood qui utilise Netlify Identity, vous devrez effacer manuellement votre stockage local, où est stockée l'URL du site que vous avez entrée la première fois que vous avez vu la fenêtre modale. Le stockage local est lié à votre domaine et à votre port, qui par défaut seront les mêmes pour toute application Redwood lors du développement local. Vous pouvez effacer votre stockage local dans Chrome en allant dans l'inspecteur Web, puis dans l'onglet **Application**, puis à gauche, ouvrez **Local Storage** et cliquez sur http://localhost:8910. Vous verrez les clés stockées sur la droite et pourrez toutes les supprimer.
 
-One more touch: let's show the email address of the user that's logged in. We can get the `currentUser` from `useAuth()` and it will contain the data that our third party authentication library is storing about the currently logged in user:
+Encore un détail: montrons l'adresse e-mail de l'utilisateur connecté. Nous pouvons obtenir le `currentUser` par le "hook" `useAuth()`. Il contiendra les données que notre bibliothèque d'authentification tierce stocke pour l'utilisateur actuellement connecté:
 
 ```javascript{7,27}
 // web/src/layouts/BlogLayout/BlogLayout.js
@@ -2774,36 +2773,36 @@ export default BlogLayout
 
 ![Logged in email](https://user-images.githubusercontent.com/300/82389433-05b2e680-99f1-11ea-9d01-456cad508c80.png)
 
-> Check out the settings for Identity over at Netlify for more options, including allowing users to create accounts rather than having to be invited, add third party login buttons for Bitbucket, GitHub, GitLab and Google, receive webhooks when someone logs in, and more!
+> Consultez les paramètres d'identité sur Netlify pour plus d'options, notamment permettre aux utilisateurs de créer des comptes plutôt que d'avoir à être invités, ajouter des boutons de connexion tiers pour Bitbucket, GitHub, GitLab et Google, recevoir des webhooks lorsque quelqu'un se connecte, etc... !
 
-Believe it or not, that's it! Authentication with Redwood is a breeze and we're just getting started. Expect more magic soon!
+Croyez-le ou non, c'est tout! L'authentification avec Redwood est un jeu d'enfant et nous ne faisons que commencer. Attendez-vous à plus de magie bientôt!
 
-> If you inspect the contents of `currentUser` you'll see it contains an array called `roles`. On the Netlify Identity dashboard you can give your user a collection of roles, which are just strings like "admin" or "guest". Using this array of roles you *could* create a very rudimentary role-based authentication system. Unless you are in dire need of this simple role checking, we recommend waiting for the Redwood solution, coming soon!
+> Si vous inspectez le contenu de `currentUser`, vous verrez qu'il contient un tableau appelé `roles`. Sur le tableau de bord Netlify Identity, vous pouvez attribuer à votre utilisateur une collection de rôles, qui ne sont que des chaînes de caractères telles que «admin» ou «guest». En utilisant cette gamme de rôles, vous *pourriez* créer un système d'authentification basé sur les rôles très rudimentaire. À moins que vous n'ayez un besoin urgent de cette simple vérification de rôle, nous vous recommandons d'attendre la solution Redwood, à venir bientôt!
 
-## Wrapping Up
+## Conclusion
 
-You made it! If you really went through the whole tutorial: congratulations! If you just skipped ahead to this page to try and get a free congratulations: tsk, tsk!
+Vous l'avez fait! Si vous avez vraiment parcouru tout le tutoriel: félicitations! Si vous venez de passer à cette page pour essayer d'obtenir des félicitations gratuites: tss, tss...
 
-That was potentially a lot of new concepts to absorb all at once so don't feed bad if all of it didn't fully sink in. React, GraphQL, Prisma, serverless functions...so many things! Even those of us working on the framework are heading over to Google multiple times per day to figure out how to get these things to work together.
+Cela représentait potentiellement beaucoup de nouveaux concepts à absorber d'un seul coup, alors ne vous en faîte pas si vous ne retenez pas tout complètement. React, GraphQL, Prisma, les fonctions Serverless... tant de choses! Même ceux d'entre nous qui travaillent sur le framework consultent Google plusieurs fois par jour pour comprendre comment faire fonctionner ces éléments ensemble.
 
-As an anonymous Twitter user once mused: "If you enjoy feeling like both the smartest person on earth and the dumbest person in history within a span of 24 hours, programming may be the career for you!"
+Comme l'a dit un utilisateur anonyme de Twitter: "Si vous aimez vous sentir à la fois la personne la plus intelligente du monde et la personne la plus stupide de l'histoire en l'espace de 24 heures, la programmation peut être un bon choix de carrière!"
 
-### What's Next?
+### Et maintenant?
 
-Want to add some more features to your app? Check out some of our Cookbook recipies like [calling to a third party API](/cookbook/using-a-third-party-api) and [deploying an app without an API at all](/cookbook/disable-api-database). Have you grown out of SQLite and want to [install Postgres locally](/docs/local-postgres-setup)? We've also got lots of [guides](/docs/introduction) for more info on Redwood's internals.
+Vous souhaitez ajouter d'autres fonctionnalités à votre application? Découvrez quelques-un de nos "Cookbook" (livres de recettes) comme [appeler une API tierce](/cookbook/using-a-third-party-api), ou encore [déployer une application sans API du tout](/cookbook/disable-api-database). Vous en avez assez de SQLite et souhaitez [installer Postgres localement](/docs/local-postgres-setup)? Nous avons également de nombreux [guides](/docs/introduction) pour plus d'informations sur les composants internes de Redwood.
 
-### Roadmap
+### Feuille de route
 
-Check out our [Roadmap](https://redwoodjs.com/roadmap) to see where we're headed and how we're going to get there.
-If you're interested in helping with anything you see, just let us know over on the [RedwoodJS Forum](https://community.redwoodjs.com/) and we'll be happy to get you set up.
-We want to hit `1.0` by the end of the year. And with your help, we think we can do it!
+Consultez notre [Feuille de route](https://redwoodjs.com/roadmap) pour voir où nous allons et comment nous allons y arriver.
+Si vous souhaitez aider, faites-le nous savoir sur le [forum de RedwoodJS] (https://community.redwoodjs.com/) et nous serons heureux de vous accompagner.
+Nous voulons atteindre la version `1.0` d'ici la fin de l'année. Et avec votre aide, nous pensons que nous pouvons le faire.
 
-### Help Us!
+### Aidez nous!
 
-What did you think of Redwood? Is it the Next Step for JS frameworks? What can it do better? We've got a lot more planned. Want to help us build these upcoming features?
+Qu'avez-vous pensé de Redwood? Est-ce la prochaine étape pour les frameworks JS? Que peut-il faire mieux? Nous avons encore beaucoup de choses prévues. Vous souhaitez nous aider à créer ces fonctionnalités?
 
-- [Open a PR](https://github.com/redwoodjs/redwood/pulls)
-- [Write some docs](/docs/introduction)
-- [Join the community](https://community.redwoodjs.com)
+- [Ouvrez une pull-request](https://github.com/redwoodjs/redwood/pulls)
+- [Redigez un peu de documentation](/docs/introduction)
+- [Rejoignez la communauté](https://community.redwoodjs.com)
 
-Thanks for following along. Now go out and build something amazing!
+Merci d'avoir suivi ce didacticiel. Et maintenant, construisez quelque chose d'incroyable!
